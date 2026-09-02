@@ -22,6 +22,7 @@ model User {
     updatedAt DateTime @updatedAt
 
     customer Customer?
+    technician Technician?
 
     @@unique([email])
     @@map("users")

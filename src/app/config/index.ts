@@ -19,6 +19,14 @@ export default {
 
 	google_client_id: process.env.GOOGLE_CLIENT_ID!,
 
+	field_nexus_admin_name: process.env.FIELD_NEXUS_ADMIN_NAME!,
+	field_nexus_admin_email: process.env.FIELD_NEXUS_ADMIN_EMAIL!,
+	field_nexus_admin_password: process.env.FIELD_NEXUS_ADMIN_PASSWORD!,
+
+	tester_technician_name: process.env.TESTER_TECHNICIAN_NAME!,
+	tester_technician_email: process.env.TESTER_TECHNICIAN_EMAIL!,
+	tester_technician_password: process.env.TESTER_TECHNICIAN_PASSWORD!,
+
 	redis_user: process.env.REDIS_USER!,
 	redis_password: process.env.REDIS_PASSWORD!,
 	redis_host: process.env.REDIS_HOST!,

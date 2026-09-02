@@ -1,0 +1,30 @@
+model Technician {
+    id String @id @default(uuid())
+
+    name    String
+    email   String  @unique
+    address String?
+
+    qualifications  String
+    experienceYears Int
+
+    bio             String?
+
+    contactNumber String?
+
+    resume              String?
+    resumePublicId      String?
+    additionalDocuments Json?
+
+    isDeleted Boolean   @default(false)
+    deletedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@index([email], name: "idx_technician_email")
+    @@map("technicians")
+}

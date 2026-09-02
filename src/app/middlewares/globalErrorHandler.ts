@@ -17,7 +17,7 @@ export const globalErrorHandler = async (
 	let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
 	let errorMessage = err.message || "Internal Server Error";
 	const errorName = err.name || "Internal Server Error";
-	// let errorDetails = err.stack
+	// let errorDetails = err.stack || "Internal Server Error";
 
 	if (err instanceof Prisma.PrismaClientValidationError) {
 		statusCode = httpStatus.BAD_REQUEST;
