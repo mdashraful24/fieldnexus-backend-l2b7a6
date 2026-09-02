@@ -51,8 +51,12 @@
     "@types/nodemailer": "^8.0.1",
     "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.20.0",
+    "opencode-ai": "^1.18.26",
     "prisma": "^7.9.1",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "opencode-ai@1.18.26": true
   }
 }

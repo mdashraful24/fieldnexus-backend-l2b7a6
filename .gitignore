@@ -12,3 +12,6 @@ yarn.lock
 package-lock.json
 pnpm-workspace.yaml
 .vscode
+
+Field Nexus (Backend).postman_collection.json
+package.json
