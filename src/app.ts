@@ -1,38 +1,43 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Request, Response } from "express";
-import { notFound } from "./middlewares/notFound";
-import { errorHandler } from "./middlewares/globalErrorHandler";
-import config from "./config";
-import passport from "passport";
-import "./config/passport";
+import express, {
+  type Application,
+  type Request,
+  type Response,
+} from "express";
+import httpStatus from "http-status";
+// Config & libraries
+import config from "./app/config";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import { notFound } from "./app/middlewares/notFound";
+// Middleware
+// Routes
 
-const app = express();
-app.use(express.json());
+const app: Application = express();
+
 app.use(
   cors({
-    origin: config.FRONTEND_URL,
+    origin: config.frontend_url,
     credentials: true,
   }),
 );
 
-app.use(
-  express.urlencoded({
-    extended: true,
-  }),
-);
+// Enable URL-encoded form data parsing
+app.use(express.urlencoded({ extended: true }));
 
+// Middleware to parse JSON bodies
+app.use(express.json());
 app.use(cookieParser());
-app.use(passport.initialize());
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
+// Basic route
+app.get("/", async (req: Request, res: Response) => {
+  res.status(httpStatus.OK).json({
+    success: true,
     message: "Welcome to Field Nexus Backend",
   });
 });
 
-app.use(errorHandler);
-
+app.use(globalErrorHandler);
 app.use(notFound);
 
 export default app;
