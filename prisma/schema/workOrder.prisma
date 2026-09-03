@@ -1,43 +1,43 @@
 model WorkOrder {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    workOrderNumber String  @unique
-    title           String
-    description     String?
-    version         Int      @default(0)
+  workOrderNumber String  @unique
+  title           String
+  description     String?
+  version         Int     @default(0)
 
-    status   WorkOrderStatus   @default(PENDING)
-    priority WorkOrderPriority @default(MEDIUM)
+  status   WorkOrderStatus   @default(PENDING)
+  priority WorkOrderPriority @default(MEDIUM)
 
-    scheduledAt   DateTime?
-    slaDeadline   DateTime?
-    completedAt   DateTime?
-    cancellationReason String?
+  scheduledAt        DateTime?
+  slaDeadline        DateTime?
+  completedAt        DateTime?
+  cancellationReason String?
 
-    latitude  Decimal? @db.Decimal(10, 7)
-    longitude Decimal? @db.Decimal(10, 7)
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
 
-    isDeleted Boolean   @default(false)
-    deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    customerId String
-    customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
 
-    categoryId String
-    category   ServiceCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id])
 
-    workAssignments WorkAssignment[]
-    serviceReport    ServiceReport?
-    feedback         Feedback?
-    payment          Payment?
+  workAssignments WorkAssignment[]
+  serviceReport   ServiceReport?
+  feedback        Feedback?
+  payment         Payment?
 
-    @@index([customerId], name: "idx_work_order_customerId")
-    @@index([categoryId], name: "idx_work_order_categoryId")
-    @@index([status], name: "idx_work_order_status")
-    @@index([workOrderNumber], name: "idx_work_order_number")
-    @@index([createdAt], name: "idx_work_order_createdAt")
-    @@map("work_orders")
+  @@index([customerId], name: "idx_work_order_customerId")
+  @@index([categoryId], name: "idx_work_order_categoryId")
+  @@index([status], name: "idx_work_order_status")
+  @@index([workOrderNumber], name: "idx_work_order_number")
+  @@index([createdAt], name: "idx_work_order_createdAt")
+  @@map("work_orders")
 }

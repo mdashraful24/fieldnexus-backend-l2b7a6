@@ -1,34 +1,34 @@
 model Technician {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    name    String
-    email   String  @unique
-    address String?
+  name    String
+  email   String  @unique
+  address String?
 
-    qualifications  String
-    experienceYears Int
+  qualifications  String
+  experienceYears Int
 
-    bio             String?
+  bio String?
 
-    contactNumber String?
+  contactNumber String?
 
-    resume              String?
-    resumePublicId      String?
-    additionalDocuments Json?
+  resume              String?
+  resumePublicId      String?
+  additionalDocuments Json?
 
-    isDeleted Boolean   @default(false)
-    deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    userId String @unique
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-    vendorMembers VendorMember[]
-    workAssignments WorkAssignment[]
-    serviceReports    ServiceReport[]
+  vendorMembers   VendorMember[]
+  workAssignments WorkAssignment[]
+  serviceReports  ServiceReport[]
 
-    @@index([email], name: "idx_technician_email")
-    @@map("technicians")
+  @@index([email], name: "idx_technician_email")
+  @@map("technicians")
 }

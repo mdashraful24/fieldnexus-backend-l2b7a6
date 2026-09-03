@@ -1,20 +1,20 @@
 model ServiceCategory {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    name        String  @unique
-    description String?
-    basePrice   Decimal? @db.Decimal(10, 2)
-    isActive    Boolean @default(true)
+  name        String   @unique
+  description String?
+  basePrice   Decimal? @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
 
-    isDeleted Boolean   @default(false)
-    deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    workOrders WorkOrder[]
+  workOrders WorkOrder[]
 
-    @@index([name], name: "idx_service_category_name")
-    @@index([isDeleted], name: "idx_service_category_isDeleted")
-    @@map("service_categories")
+  @@index([name], name: "idx_service_category_name")
+  @@index([isDeleted], name: "idx_service_category_isDeleted")
+  @@map("service_categories")
 }

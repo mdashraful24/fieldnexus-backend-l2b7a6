@@ -1,28 +1,28 @@
 model Vendor {
-    id String @id @default(uuid())
+  id String @id @default(uuid())
 
-    name        String
-    email       String  @unique
-    phone       String?
-    description String?
-    address     String?
+  name        String
+  email       String  @unique
+  phone       String?
+  description String?
+  address     String?
 
-    serviceAreas String?
-    rating       Float   @default(0)
+  serviceAreas String?
+  rating       Float   @default(0)
 
-    status VendorStatus @default(PENDING)
+  status VendorStatus @default(PENDING)
 
-    isDeleted Boolean   @default(false)
-    deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    members VendorMember[]
-    workAssignments WorkAssignment[]
+  members         VendorMember[]
+  workAssignments WorkAssignment[]
 
-    @@index([name], name: "idx_vendor_name")
-    @@index([status], name: "idx_vendor_status")
-    @@index([isDeleted], name: "idx_vendor_isDeleted")
-    @@map("vendors")
+  @@index([name], name: "idx_vendor_name")
+  @@index([status], name: "idx_vendor_status")
+  @@index([isDeleted], name: "idx_vendor_isDeleted")
+  @@map("vendors")
 }
