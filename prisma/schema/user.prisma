@@ -24,6 +24,7 @@ model User {
     customer Customer?
     technician Technician?
     notifications Notification[]
+    auditLogs AuditLog[]
 
     @@unique([email])
     @@map("users")
