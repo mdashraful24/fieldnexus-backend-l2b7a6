@@ -31,6 +31,7 @@ model WorkOrder {
 
     workAssignments WorkAssignment[]
     serviceReport    ServiceReport?
+    feedback         Feedback?
 
     @@index([customerId], name: "idx_work_order_customerId")
     @@index([categoryId], name: "idx_work_order_categoryId")

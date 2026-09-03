@@ -1,0 +1,18 @@
+model Notification {
+    id String @id @default(uuid())
+
+    message String
+    isRead  Boolean @default(false)
+
+    createdAt DateTime @default(now())
+
+    type NotificationType @default(GENERAL)
+
+    userId String
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@index([userId], name: "idx_notification_userId")
+    @@index([isRead], name: "idx_notification_isRead")
+    @@index([createdAt], name: "idx_notification_createdAt")
+    @@map("notifications")
+}

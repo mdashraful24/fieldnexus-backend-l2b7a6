@@ -4,6 +4,8 @@ import { auth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { AssignmentController } from "../assignment/assignment.controller";
 import { assignmentValidation } from "../assignment/assignment.validation";
+import { FeedbackController } from "../feedback/feedback.controller";
+import { feedbackValidation } from "../feedback/feedback.validation";
 import { ServiceReportController } from "../serviceReport/serviceReport.controller";
 import { serviceReportValidation } from "../serviceReport/serviceReport.validation";
 import { WorkOrderController } from "./workOrder.controller";
@@ -64,6 +66,19 @@ router.get(
 	"/:id/service-report",
 	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
 	ServiceReportController.getServiceReport,
+);
+
+router.post(
+	"/:id/feedback",
+	auth(Role.CUSTOMER),
+	validateRequest(feedbackValidation.CreateFeedbackZodSchema),
+	FeedbackController.createFeedback,
+);
+
+router.get(
+	"/:id/feedback",
+	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	FeedbackController.getFeedback,
 );
 
 router.get(

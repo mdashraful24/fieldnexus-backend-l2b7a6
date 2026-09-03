@@ -62,3 +62,11 @@ enum AssignmentStatus {
     COMPLETED
     CANCELLED
 }
+
+enum NotificationType {
+    WORK_ORDER_ASSIGNED
+    WORK_ORDER_ACCEPTED
+    WORK_ORDER_COMPLETED
+    PAYMENT_SUCCESS
+    GENERAL
+}

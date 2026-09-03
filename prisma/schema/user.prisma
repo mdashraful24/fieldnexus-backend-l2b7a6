@@ -23,6 +23,7 @@ model User {
 
     customer Customer?
     technician Technician?
+    notifications Notification[]
 
     @@unique([email])
     @@map("users")
