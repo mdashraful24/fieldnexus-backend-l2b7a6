@@ -15,12 +15,3 @@ export interface IUpdateVendorPayload {
 	address?: string;
 	serviceAreas?: string;
 }
-
-export interface IVendorQueryParams {
-	searchTerm?: string;
-	page?: string;
-	limit?: string;
-	sortBy?: string;
-	sortOrder?: string;
-	status?: string;
-}

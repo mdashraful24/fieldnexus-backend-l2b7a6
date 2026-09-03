@@ -1,5 +1,5 @@
 model Customer {
-    id String @id @default(uuid(7))
+    id String @id @default(uuid())
 
     name          String
     email         String    @unique
@@ -15,6 +15,8 @@ model Customer {
 
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    workOrders WorkOrder[]
 
     @@index([email], name: "idx_customer_email")
     @@index([isDeleted], name: "idx_customer_isDeleted")

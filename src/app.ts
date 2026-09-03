@@ -12,6 +12,7 @@ import { notFound } from "./app/middlewares/notFound";
 import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { VendorRoutes } from "./app/modules/vendor/vendor.route";
+import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
 
 const app: Application = express();
 
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/vendors", VendorRoutes);
+app.use("/api/v1/work-orders", WorkOrderRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {

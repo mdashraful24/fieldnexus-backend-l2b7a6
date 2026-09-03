@@ -19,6 +19,7 @@ model Vendor {
     updatedAt DateTime @updatedAt
 
     members VendorMember[]
+    workAssignments WorkAssignment[]
 
     @@index([name], name: "idx_vendor_name")
     @@index([status], name: "idx_vendor_status")

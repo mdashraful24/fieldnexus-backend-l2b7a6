@@ -1,0 +1,40 @@
+model WorkOrder {
+    id String @id @default(uuid())
+
+    workOrderNumber String  @unique
+    title           String
+    description     String?
+    version         Int      @default(0)
+
+    status   WorkOrderStatus   @default(PENDING)
+    priority WorkOrderPriority @default(MEDIUM)
+
+    scheduledAt   DateTime?
+    slaDeadline   DateTime?
+    completedAt   DateTime?
+    cancellationReason String?
+
+    latitude  Decimal? @db.Decimal(10, 7)
+    longitude Decimal? @db.Decimal(10, 7)
+
+    isDeleted Boolean   @default(false)
+    deletedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    customerId String
+    customer   Customer @relation(fields: [customerId], references: [id])
+
+    categoryId String
+    category   ServiceCategory @relation(fields: [categoryId], references: [id])
+
+    workAssignments WorkAssignment[]
+
+    @@index([customerId], name: "idx_work_order_customerId")
+    @@index([categoryId], name: "idx_work_order_categoryId")
+    @@index([status], name: "idx_work_order_status")
+    @@index([workOrderNumber], name: "idx_work_order_number")
+    @@index([createdAt], name: "idx_work_order_createdAt")
+    @@map("work_orders")
+}

@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import type { IVendorQueryParams } from "./vendor.interface";
 import { VendorService } from "./vendor.service";
 
 const createVendor = catchAsync(async (req: Request, res: Response) => {
@@ -19,7 +18,7 @@ const createVendor = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllVendors = catchAsync(async (req: Request, res: Response) => {
-	const query = req.query as unknown as IVendorQueryParams;
+	const query = req.query;
 
 	const result = await VendorService.getAllVendors(query);
 
@@ -27,7 +26,7 @@ const getAllVendors = catchAsync(async (req: Request, res: Response) => {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "Vendors retrieved successfully",
-		data: result.result,
+		data: result.data,
 		meta: result.meta,
 	});
 });

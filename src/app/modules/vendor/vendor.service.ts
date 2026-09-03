@@ -1,12 +1,11 @@
 import httpStatus from "http-status";
-import type { Prisma } from "../../../generated/prisma/client";
-import { VendorStatus } from "../../../generated/prisma/enums";
+import { VendorWhereInput } from "../../../generated/prisma/models";
+import { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
 	ICreateVendorPayload,
-	IUpdateVendorPayload,
-	IVendorQueryParams,
+	IUpdateVendorPayload
 } from "./vendor.interface";
 
 const createVendor = async (payload: ICreateVendorPayload) => {
@@ -35,63 +34,74 @@ const createVendor = async (payload: ICreateVendorPayload) => {
 	return vendor;
 };
 
-const getAllVendors = async (query: IVendorQueryParams) => {
-	const {
-		searchTerm,
-		page = "1",
-		limit = "10",
-		sortBy = "createdAt",
-		sortOrder = "desc",
-		status,
-	} = query;
+const getAllVendors = async (query: IQuery) => {
+	const limit = query.limit ? Number(query.limit) : 10;
+	const page = query.page ? Number(query.page) : 1;
+	const skip = (page - 1) * limit;
+	const sortBy = query.sortBy ? query.sortBy : "createdAt";
+	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
-	const pageNum = Math.max(Number(page) || 1, 1);
-	const limitNum = Math.min(Math.max(Number(limit) || 10, 1), 50);
-	const skip = (pageNum - 1) * limitNum;
+	const andConditions: VendorWhereInput[] = [];
 
-	const where: Prisma.VendorWhereInput = {
-		isDeleted: false,
+	// Add search term condition if provided
+	if (query.searchTerm) {
+		andConditions.push({
+			OR: [
+				{
+					name: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+				{
+					email: {
+						contains: query.searchTerm,
+						mode: "insensitive",
+					},
+				},
+			],
+		});
+	}
+
+	// Add any other filter conditions based on the query parameters
+	if (query.email) {
+		andConditions.push({
+			email: { equals: query.email, mode: "insensitive" },
+		});
+	}
+
+	andConditions.push({ isDeleted: false });
+
+	const whereCondition: VendorWhereInput = {
+		AND: andConditions,
 	};
 
-	if (searchTerm) {
-		where.OR = [
-			{ name: { contains: searchTerm, mode: "insensitive" } },
-			{ email: { contains: searchTerm, mode: "insensitive" } },
-			{ address: { contains: searchTerm, mode: "insensitive" } },
-		];
-	}
+	const allVendors = await prisma.vendor.findMany({
+		where: whereCondition,
 
-	if (status && Object.values(VendorStatus).includes(status as VendorStatus)) {
-		where.status = status as VendorStatus;
-	}
+		// dynamic pagination and sorting
+		take: limit,
+		skip: skip,
 
-	const validSortFields = ["name", "email", "rating", "createdAt", "updatedAt"];
-	const actualSortBy = validSortFields.includes(sortBy) ? sortBy : "createdAt";
-	const actualSortOrder = sortOrder === "asc" ? "asc" : "desc";
+		orderBy: {
+			[sortBy]: sortOrder,
+		},
+	});
 
-	const [vendors, total] = await Promise.all([
-		prisma.vendor.findMany({
-			where,
-			skip,
-			take: limitNum,
-			orderBy: { [actualSortBy]: actualSortOrder },
-			include: {
-				_count: {
-					select: { members: true },
-				},
-			},
-		}),
-		prisma.vendor.count({ where }),
-	]);
+	const totalVendorCount = await prisma.vendor.count({
+		where: {
+			AND: andConditions,
+		},
+	});
 
 	return {
+		data: allVendors,
 		meta: {
-			page: pageNum,
-			limit: limitNum,
-			total,
-			totalPages: Math.ceil(total / limitNum),
+			page: page,
+			limit: limit,
+			total: totalVendorCount,
+			totalPages: Math.ceil(totalVendorCount / limit),
 		},
-		result: vendors,
 	};
 };
 

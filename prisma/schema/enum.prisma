@@ -34,3 +34,31 @@ enum VendorStatus {
     APPROVED
     SUSPENDED
 }
+
+enum WorkOrderStatus {
+    PENDING
+    APPROVED
+    ASSIGNED
+    ACCEPTED
+    EN_ROUTE
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+    REASSIGNED
+    FAILED
+}
+
+enum WorkOrderPriority {
+    LOW
+    MEDIUM
+    HIGH
+    URGENT
+}
+
+enum AssignmentStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+    COMPLETED
+    CANCELLED
+}

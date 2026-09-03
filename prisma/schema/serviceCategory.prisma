@@ -1,0 +1,19 @@
+model ServiceCategory {
+    id String @id @default(uuid())
+
+    name        String  @unique
+    description String?
+    isActive    Boolean @default(true)
+
+    isDeleted Boolean   @default(false)
+    deletedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    workOrders WorkOrder[]
+
+    @@index([name], name: "idx_service_category_name")
+    @@index([isDeleted], name: "idx_service_category_isDeleted")
+    @@map("service_categories")
+}
