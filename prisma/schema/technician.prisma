@@ -25,6 +25,8 @@ model Technician {
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+    vendorMembers VendorMember[]
+
     @@index([email], name: "idx_technician_email")
     @@map("technicians")
 }

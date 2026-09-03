@@ -28,3 +28,9 @@ enum PaymentStatus {
     CANCELLED
     REFUNDED
 }
+
+enum VendorStatus {
+    PENDING
+    APPROVED
+    SUSPENDED
+}

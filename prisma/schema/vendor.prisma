@@ -1,0 +1,27 @@
+model Vendor {
+    id String @id @default(uuid())
+
+    name        String
+    email       String  @unique
+    phone       String?
+    description String?
+    address     String?
+
+    serviceAreas String?
+    rating       Float   @default(0)
+
+    status VendorStatus @default(PENDING)
+
+    isDeleted Boolean   @default(false)
+    deletedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    members VendorMember[]
+
+    @@index([name], name: "idx_vendor_name")
+    @@index([status], name: "idx_vendor_status")
+    @@index([isDeleted], name: "idx_vendor_isDeleted")
+    @@map("vendors")
+}
