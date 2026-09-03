@@ -18,6 +18,7 @@ model Customer {
 
     workOrders WorkOrder[]
     feedback   Feedback[]
+    payments   Payment[]
 
     @@index([email], name: "idx_customer_email")
     @@index([isDeleted], name: "idx_customer_isDeleted")

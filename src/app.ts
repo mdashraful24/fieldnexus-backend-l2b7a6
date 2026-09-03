@@ -15,6 +15,7 @@ import { NotificationRoutes } from "./app/modules/notification/notification.rout
 import { UserRoutes } from "./app/modules/user/user.route";
 import { VendorRoutes } from "./app/modules/vendor/vendor.route";
 import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
+import { PaymentRoutes } from "./app/modules/payment/payment.route";
 
 const app: Application = express();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/vendors", VendorRoutes);
 app.use("/api/v1/work-orders", WorkOrderRoutes);
+app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/notifications", NotificationRoutes);
 app.use("/api/v1/admin", AdminRoutes);
 

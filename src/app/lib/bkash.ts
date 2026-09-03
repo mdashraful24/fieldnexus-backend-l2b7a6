@@ -5,8 +5,8 @@ import { redisClient } from "./redis";
 
 export const getBkashIdToken = async () => {
 	try {
-		const IdTokenKey = "bKash:idToken";
-		const RefreshTokenKey = "bKash:refreshToken";
+		const IdTokenKey = "bkash:idToken";
+		const RefreshTokenKey = "bkash:refreshToken";
 
 		let bkashIdToken = await redisClient.get(IdTokenKey);
 		const bkashIdTokenTTL = await redisClient.ttl(IdTokenKey);
@@ -21,9 +21,10 @@ export const getBkashIdToken = async () => {
 		//     bkashRefreshTokenTTL
 		// });
 
-		// bKash id token remaining time is less than equal 10 minutes or bKash id token is expired
-		// bKash refresh token must exist
-		// bKash refresh token remaining time is more than 10 minutes
+		// bkash id token remaining time is less than equal 10 minutes or bkash id token is expired
+		// bkash refresh token must exist
+		// bkash refresh token remaining time is more than 10 minutes
+
 		if (
 			(bkashIdTokenTTL <= 600 || !bkashIdToken) &&
 			bkashRefreshToken &&
@@ -50,7 +51,7 @@ export const getBkashIdToken = async () => {
 			if (!refreshTokenResponse.ok) {
 				throw new AppError(
 					httpStatus.BAD_REQUEST,
-					"bKash access token grant failed",
+					"bkash access token grant failed",
 				);
 			}
 
@@ -92,13 +93,13 @@ export const getBkashIdToken = async () => {
 		if (!response.ok) {
 			throw new AppError(
 				httpStatus.BAD_REQUEST,
-				"bKash access token grant failed",
+				"bkash access token grant failed",
 			);
 		}
 
 		const result = await response.json();
 
-		// bKash id token set
+		// bkash id token set
 		await redisClient.set(IdTokenKey, result.id_token, {
 			expiration: {
 				type: "EX",
@@ -106,7 +107,7 @@ export const getBkashIdToken = async () => {
 			},
 		});
 
-		// bKash refresh token set
+		// bkash refresh token set
 		await redisClient.set(RefreshTokenKey, result.refresh_token, {
 			expiration: {
 				type: "EX",
@@ -120,7 +121,7 @@ export const getBkashIdToken = async () => {
 	} catch (error: unknown) {
 		throw new AppError(
 			httpStatus.INTERNAL_SERVER_ERROR,
-			error instanceof Error ? error.message : "bKash id token failed",
+			error instanceof Error ? error.message : "bkash id token failed",
 		);
 	}
 };

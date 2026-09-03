@@ -3,6 +3,7 @@ model ServiceCategory {
 
     name        String  @unique
     description String?
+    basePrice   Decimal? @db.Decimal(10, 2)
     isActive    Boolean @default(true)
 
     isDeleted Boolean   @default(false)
