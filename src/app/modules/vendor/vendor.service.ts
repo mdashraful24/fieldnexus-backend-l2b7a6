@@ -5,7 +5,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
 	ICreateVendorPayload,
-	IUpdateVendorPayload
+	IUpdateVendorPayload,
 } from "./vendor.interface";
 
 const createVendor = async (payload: ICreateVendorPayload) => {

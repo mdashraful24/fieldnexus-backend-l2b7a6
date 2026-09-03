@@ -27,6 +27,7 @@ model Technician {
 
     vendorMembers VendorMember[]
     workAssignments WorkAssignment[]
+    serviceReports    ServiceReport[]
 
     @@index([email], name: "idx_technician_email")
     @@map("technicians")

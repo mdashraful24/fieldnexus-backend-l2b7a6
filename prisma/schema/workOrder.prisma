@@ -30,6 +30,7 @@ model WorkOrder {
     category   ServiceCategory @relation(fields: [categoryId], references: [id])
 
     workAssignments WorkAssignment[]
+    serviceReport    ServiceReport?
 
     @@index([customerId], name: "idx_work_order_customerId")
     @@index([categoryId], name: "idx_work_order_categoryId")

@@ -6,40 +6,40 @@ import { sendResponse } from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
 
 const uploadProfilePicture = catchAsync(async (req: Request, res: Response) => {
-    if (!req.file) {
-        throw new AppError(httpStatus.BAD_REQUEST, "No file uploaded");
-    }
+	if (!req.file) {
+		throw new AppError(httpStatus.BAD_REQUEST, "No file uploaded");
+	}
 
-    const userId = req.user?.userId;
+	const userId = req.user?.userId;
 
-    const result = await UserServices.uploadProfilePicture(
-        req.file?.buffer as Buffer,
-        userId!,
-    );
+	const result = await UserServices.uploadProfilePicture(
+		req.file?.buffer as Buffer,
+		userId!,
+	);
 
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Profile picture uploaded successfully",
-        data: result,
-    });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Profile picture uploaded successfully",
+		data: result,
+	});
 });
 
 const updateUserInfo = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user?.userId;
-    const payload = req.body;
+	const userId = req.user?.userId;
+	const payload = req.body;
 
-    const result = await UserServices.updateUserInfo(userId!, payload);
+	const result = await UserServices.updateUserInfo(userId!, payload);
 
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "User information updated successfully",
-        data: result,
-    });
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User information updated successfully",
+		data: result,
+	});
 });
 
 export const UserController = {
-    uploadProfilePicture,
-    updateUserInfo,
+	uploadProfilePicture,
+	updateUserInfo,
 };
