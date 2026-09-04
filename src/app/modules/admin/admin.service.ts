@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { WorkOrderStatus } from "../../../generated/prisma/enums";
+import { UserStatus, WorkOrderStatus } from "../../../generated/prisma/enums";
 import type { UserWhereInput } from "../../../generated/prisma/models";
 import type { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
@@ -149,7 +149,7 @@ const updateUserStatus = async (
 		where: { id: userId },
 		data: {
 			status: payload.status,
-			...(payload.status === "DELETED"
+			...(payload.status === UserStatus.DELETED
 				? { isDeleted: true, deletedAt: new Date() }
 				: {}),
 		},

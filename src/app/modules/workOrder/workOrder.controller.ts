@@ -110,6 +110,35 @@ const deleteWorkOrder = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const createServiceReport = catchAsync(async (req: Request, res: Response) => {
+	const id = req.params.id as string;
+	const payload = req.body;
+	const user = req.user as RequestUser;
+
+	const result = await WorkOrderService.createServiceReport(id, payload, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Service report submitted successfully",
+		data: result,
+	});
+});
+
+const getServiceReport = catchAsync(async (req: Request, res: Response) => {
+	const id = req.params.id as string;
+	const user = req.user as RequestUser;
+
+	const result = await WorkOrderService.getServiceReport(id, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Service report retrieved successfully",
+		data: result,
+	});
+});
+
 export const WorkOrderController = {
 	createWorkOrder,
 	getAllWorkOrders,
@@ -118,4 +147,6 @@ export const WorkOrderController = {
 	updateWorkOrderStatus,
 	getMyAssignedWorkOrders,
 	deleteWorkOrder,
+	createServiceReport,
+	getServiceReport,
 };

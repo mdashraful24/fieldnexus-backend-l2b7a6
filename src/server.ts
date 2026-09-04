@@ -4,7 +4,7 @@ import { deleteUnverifiedAccounts } from './app/lib/cron';
 import { transporter } from './app/lib/nodemailer';
 import { prisma } from './app/lib/prisma';
 import { redisClient } from './app/lib/redis';
-import { seedAdmin, seedTesterTechnician } from './app/utils/seed';
+import { seedAdmin, seedTesterTechnician, seedTesterVendor } from './app/utils/seed';
 
 async function main() {
   try {
@@ -19,6 +19,7 @@ async function main() {
 
     await seedAdmin();
     await seedTesterTechnician();
+    await seedTesterVendor();
 
     await deleteUnverifiedAccounts();
 

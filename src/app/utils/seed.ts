@@ -116,3 +116,50 @@ export const seedTesterTechnician = async () => {
 		});
 	}
 };
+
+const TESTER_VENDOR_NAME = "Field Nexus Test Vendor";
+
+export const seedTesterVendor = async () => {
+	try {
+		const existingVendor = await prisma.vendor.findFirst({
+			where: { name: TESTER_VENDOR_NAME, isDeleted: false },
+		});
+
+		if (existingVendor) {
+			console.log("Tester Vendor Already Exists!");
+			return;
+		}
+
+		const technician = await prisma.technician.findUnique({
+			where: { email: config.tester_technician_email },
+		});
+
+		if (!technician) {
+			console.log("Tester Technician not found, skipping vendor seed.");
+			return;
+		}
+
+		const vendor = await prisma.vendor.create({
+			data: {
+				name: TESTER_VENDOR_NAME,
+				email: config.tester_technician_email,
+				phone: technician.contactNumber,
+				description: "Test vendor for development and testing purposes.",
+				address: "123 Main St, City, Country",
+				serviceAreas: "Dhaka, Gazipur, Narayanganj",
+				members: {
+					create: {
+						technicianId: technician.id,
+					},
+				},
+			},
+			include: {
+				members: true,
+			},
+		});
+
+		console.log("Tester Vendor Created : ", vendor);
+	} catch (error) {
+		console.log("Error Seeding Tester Vendor : ", error);
+	}
+};

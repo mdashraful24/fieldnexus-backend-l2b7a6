@@ -30,6 +30,14 @@ export interface IUpdateWorkOrderStatusPayload {
 	version: number;
 }
 
+export interface ICreateServiceReportPayload {
+	workDescription: string;
+	issueFound?: string;
+	solutionProvided?: string;
+	partsUsed?: unknown;
+	hoursWorked: number;
+}
+
 export const VALID_TRANSITIONS: Record<WorkOrderStatus, WorkOrderStatus[]> = {
 	[WorkOrderStatus.PENDING]: [
 		WorkOrderStatus.APPROVED,

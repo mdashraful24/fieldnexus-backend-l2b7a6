@@ -15,3 +15,7 @@ export interface IUpdateVendorPayload {
 	address?: string;
 	serviceAreas?: string;
 }
+
+export interface IAddVendorMemberPayload {
+	technicianId: string;
+}

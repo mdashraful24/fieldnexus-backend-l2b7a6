@@ -9,13 +9,14 @@ import httpStatus from "http-status";
 import config from "./app/config";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import { notFound } from "./app/middlewares/notFound";
-import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { AdminRoutes } from "./app/modules/admin/admin.route";
+import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { NotificationRoutes } from "./app/modules/notification/notification.route";
+import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { VendorRoutes } from "./app/modules/vendor/vendor.route";
+import { ServiceCategoryRoutes } from "./app/modules/serviceCategory/serviceCategory.route";
 import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
-import { PaymentRoutes } from "./app/modules/payment/payment.route";
 
 const app: Application = express();
 
@@ -36,6 +37,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/vendors", VendorRoutes);
+app.use("/api/v1/service-categories", ServiceCategoryRoutes);
 app.use("/api/v1/work-orders", WorkOrderRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/notifications", NotificationRoutes);

@@ -60,8 +60,13 @@ const VendorStatusZodSchema = z.object({
 	}),
 });
 
+const AddVendorMemberZodSchema = z.object({
+	technicianId: z.string("Technician ID is required"),
+});
+
 export const vendorValidation = {
 	CreateVendorZodSchema,
 	UpdateVendorZodSchema,
 	VendorStatusZodSchema,
+	AddVendorMemberZodSchema,
 };

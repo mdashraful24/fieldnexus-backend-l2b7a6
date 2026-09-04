@@ -27,4 +27,19 @@ router.patch(
 
 router.delete("/:id", auth(Role.ADMIN), VendorController.deleteVendor);
 
+router.post(
+	"/:vendorId/members",
+	auth(Role.ADMIN),
+	validateRequest(vendorValidation.AddVendorMemberZodSchema),
+	VendorController.addMember,
+);
+
+router.get("/:vendorId/members", auth(Role.ADMIN), VendorController.getMembers);
+
+router.delete(
+	"/:vendorId/members/:technicianId",
+	auth(Role.ADMIN),
+	VendorController.removeMember,
+);
+
 export const VendorRoutes = router;

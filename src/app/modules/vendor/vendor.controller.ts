@@ -71,10 +71,54 @@ const deleteVendor = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const addMember = catchAsync(async (req: Request, res: Response) => {
+	const vendorId = req.params.vendorId as string;
+	const payload = req.body;
+
+	const result = await VendorService.addMember(vendorId, payload);
+
+	sendResponse(res, {
+		statusCode: httpStatus.CREATED,
+		success: true,
+		message: "Technician added to vendor successfully",
+		data: result,
+	});
+});
+
+const getMembers = catchAsync(async (req: Request, res: Response) => {
+	const vendorId = req.params.vendorId as string;
+
+	const result = await VendorService.getMembers(vendorId);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Vendor members retrieved successfully",
+		data: result,
+	});
+});
+
+const removeMember = catchAsync(async (req: Request, res: Response) => {
+	const vendorId = req.params.vendorId as string;
+	const technicianId = req.params.technicianId as string;
+
+	await VendorService.removeMember(vendorId, technicianId);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Technician removed from vendor successfully",
+		data: null,
+	});
+});
+
 export const VendorController = {
 	createVendor,
 	getAllVendors,
 	getVendorById,
 	updateVendor,
 	deleteVendor,
+	addMember,
+	getMembers,
+	removeMember,
 };

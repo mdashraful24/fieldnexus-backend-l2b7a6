@@ -6,8 +6,6 @@ import { AssignmentController } from "../assignment/assignment.controller";
 import { assignmentValidation } from "../assignment/assignment.validation";
 import { FeedbackController } from "../feedback/feedback.controller";
 import { feedbackValidation } from "../feedback/feedback.validation";
-import { ServiceReportController } from "../serviceReport/serviceReport.controller";
-import { serviceReportValidation } from "../serviceReport/serviceReport.validation";
 import { WorkOrderController } from "./workOrder.controller";
 import { workOrderValidation } from "./workOrder.validation";
 
@@ -58,14 +56,14 @@ router.post(
 router.post(
 	"/:id/service-report",
 	auth(Role.TECHNICIAN),
-	validateRequest(serviceReportValidation.CreateServiceReportZodSchema),
-	ServiceReportController.createServiceReport,
+	validateRequest(workOrderValidation.CreateServiceReportZodSchema),
+	WorkOrderController.createServiceReport,
 );
 
 router.get(
 	"/:id/service-report",
 	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
-	ServiceReportController.getServiceReport,
+	WorkOrderController.getServiceReport,
 );
 
 router.post(

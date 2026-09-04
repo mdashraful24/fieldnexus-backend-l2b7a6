@@ -483,6 +483,8 @@ const initiatePayment = async (
 		},
 	});
 
+	// console.log({ payment });
+
 	return {
 		paymentUrl: createPaymentResult.bkashURL,
 		paymentID: createPaymentResult.paymentID,

@@ -4,6 +4,7 @@ import { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
+	IAddVendorMemberPayload,
 	ICreateVendorPayload,
 	IUpdateVendorPayload,
 } from "./vendor.interface";
@@ -201,10 +202,168 @@ const deleteVendor = async (vendorId: string) => {
 	return null;
 };
 
+const addMember = async (vendorId: string, payload: IAddVendorMemberPayload) => {
+	const vendor = await prisma.vendor.findUnique({
+		where: { id: vendorId, isDeleted: false },
+	});
+
+	if (!vendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	const technician = await prisma.technician.findUnique({
+		where: { id: payload.technicianId, isDeleted: false },
+	});
+
+	if (!technician) {
+		throw new AppError(httpStatus.NOT_FOUND, "Technician not found");
+	}
+
+	const existingMember = await prisma.vendorMember.findUnique({
+		where: {
+			vendorId_technicianId: {
+				vendorId,
+				technicianId: payload.technicianId,
+			},
+		},
+	});
+
+	if (existingMember) {
+		if (existingMember.isDeleted) {
+			const restored = await prisma.vendorMember.update({
+				where: { id: existingMember.id },
+				data: { isDeleted: false, deletedAt: null, isActive: true },
+				include: {
+					technician: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+							contactNumber: true,
+						},
+					},
+				},
+			});
+			return restored;
+		}
+
+		if (existingMember.isActive) {
+			throw new AppError(
+				httpStatus.CONFLICT,
+				"Technician is already an active member of this vendor",
+			);
+		}
+
+		const reactivated = await prisma.vendorMember.update({
+			where: { id: existingMember.id },
+			data: { isActive: true },
+			include: {
+				technician: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						contactNumber: true,
+					},
+				},
+			},
+		});
+		return reactivated;
+	}
+
+	const member = await prisma.vendorMember.create({
+		data: {
+			vendorId,
+			technicianId: payload.technicianId,
+		},
+		include: {
+			technician: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					contactNumber: true,
+				},
+			},
+		},
+	});
+
+	return member;
+};
+
+const getMembers = async (vendorId: string) => {
+	const vendor = await prisma.vendor.findUnique({
+		where: { id: vendorId, isDeleted: false },
+	});
+
+	if (!vendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	const members = await prisma.vendorMember.findMany({
+		where: {
+			vendorId,
+			isDeleted: false,
+		},
+		include: {
+			technician: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					contactNumber: true,
+					qualifications: true,
+					experienceYears: true,
+				},
+			},
+		},
+		orderBy: { createdAt: "desc" },
+	});
+
+	return members;
+};
+
+const removeMember = async (vendorId: string, technicianId: string) => {
+	const vendor = await prisma.vendor.findUnique({
+		where: { id: vendorId, isDeleted: false },
+	});
+
+	if (!vendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	const member = await prisma.vendorMember.findUnique({
+		where: {
+			vendorId_technicianId: {
+				vendorId,
+				technicianId,
+			},
+		},
+	});
+
+	if (!member || member.isDeleted) {
+		throw new AppError(httpStatus.NOT_FOUND, "Technician is not a member of this vendor");
+	}
+
+	await prisma.vendorMember.update({
+		where: { id: member.id },
+		data: {
+			isDeleted: true,
+			deletedAt: new Date(),
+			isActive: false,
+		},
+	});
+
+	return null;
+};
+
 export const VendorService = {
 	createVendor,
 	getAllVendors,
 	getVendorById,
 	updateVendor,
 	deleteVendor,
+	addMember,
+	getMembers,
+	removeMember,
 };
