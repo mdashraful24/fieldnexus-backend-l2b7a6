@@ -49,7 +49,7 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 	const technician = latestAssignment?.technician;
 	const vendor = latestAssignment?.vendor;
 
-	const paidAt = payment.paidAt ?? new Date();
+	const paidAt = new Date(payment.paidAt ?? new Date());
 	const formattedDate = paidAt.toLocaleDateString("en-GB", {
 		day: "2-digit",
 		month: "long",
@@ -542,10 +542,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 			data: {
 				status: PaymentStatus.PAID,
 				bkashTrxId: executedPaymentResult.trxID,
-				paidAt: executedPaymentResult.paymentExecuteTime
-					? new Date(executedPaymentResult.paymentExecuteTime)
-					: new Date(),
-				gatewayResponse: executedPaymentResult,
+				paidAt: executedPaymentResult.paymentExecuteTime,
 			},
 		});
 

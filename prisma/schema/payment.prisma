@@ -13,7 +13,7 @@ model Payment {
   payerReference        String?
   gatewayResponse       Json?
 
-  paidAt DateTime?
+  paidAt         String?
 
   refundTrxId   String?
   refundAmount  Decimal? @db.Decimal(10, 2)
