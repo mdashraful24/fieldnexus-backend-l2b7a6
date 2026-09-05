@@ -602,9 +602,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 			return {
 				redirectUrl: `${config.frontend_url}?payment=success`,
 			};
-		}
-
-		if (status === "failure") {
+		} else if (status === "failure") {
 			await prisma.payment.update({
 				where: { id: payment.id },
 				data: {
@@ -616,9 +614,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 			return {
 				redirectUrl: `${config.frontend_url}?payment=failure`,
 			};
-		}
-
-		if (status === "cancel") {
+		} else if (status === "cancel") {
 			await prisma.payment.update({
 				where: { id: payment.id },
 				data: {
@@ -630,11 +626,14 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 			return {
 				redirectUrl: `${config.frontend_url}?payment=cancel`,
 			};
+		} else {
+			return {
+				redirectUrl: `${config.frontend_url}?payment=error`,
+			};
 		}
-
-		return {
-			redirectUrl: `${config.frontend_url}?payment=error`,
-		};
+	}, {
+		maxWait: 10000,
+		timeout: 30000,
 	});
 
 	return transactionResult;
