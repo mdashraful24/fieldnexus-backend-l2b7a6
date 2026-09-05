@@ -29,6 +29,8 @@ model Technician {
   workAssignments WorkAssignment[]
   serviceReports  ServiceReport[]
 
+  application TechnicianApplication?
+
   @@index([email], name: "idx_technician_email")
   @@map("technicians")
 }

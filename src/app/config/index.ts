@@ -19,6 +19,10 @@ export default {
 
 	google_client_id: process.env.GOOGLE_CLIENT_ID!,
 
+	super_admin_name: process.env.SUPER_ADMIN_NAME!,
+	super_admin_email: process.env.SUPER_ADMIN_EMAIL!,
+	super_admin_password: process.env.SUPER_ADMIN_PASSWORD!,
+
 	field_nexus_admin_name: process.env.FIELD_NEXUS_ADMIN_NAME!,
 	field_nexus_admin_email: process.env.FIELD_NEXUS_ADMIN_EMAIL!,
 	field_nexus_admin_password: process.env.FIELD_NEXUS_ADMIN_PASSWORD!,

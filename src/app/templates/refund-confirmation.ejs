@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Confirmation - FieldNexus</title>
+</head>
+
+<body style="
+    margin:0;
+    padding:10px;
+    background:#f1f5f9;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#1e293b;
+">
+
+    <div style="
+        max-width:620px;
+        margin:40px auto;
+        padding:0 15px;
+    ">
+
+        <!-- Main Card -->
+        <div style="
+            background:#ffffff;
+            border-radius:16px;
+            overflow:hidden;
+            box-shadow:0 8px 30px rgba(15, 23, 42, 0.08);
+        ">
+
+            <!-- Header -->
+            <div style="
+                background:#0f766e;
+                padding:35px 30px;
+                text-align:center;
+            ">
+
+                <div style="
+                    width:58px;
+                    height:58px;
+                    margin:0 auto 12px;
+                    background:#ffffff;
+                    border-radius:14px;
+                    line-height:58px;
+                    font-size:22px;
+                    font-weight:700;
+                    color:#0f766e;
+                    letter-spacing:1px;
+                ">
+                    FN
+                </div>
+
+                <h1 style="
+                    margin:0;
+                    color:#ffffff;
+                    font-size:27px;
+                    font-weight:700;
+                    letter-spacing:0.3px;
+                ">
+                    FieldNexus
+                </h1>
+
+                <p style="
+                    margin:8px 0 0;
+                    color:#ccfbf1;
+                    font-size:14px;
+                ">
+                    Refund Confirmation
+                </p>
+
+            </div>
+
+            <!-- Content -->
+            <div style="
+                padding:40px 35px 25px;
+                text-align:center;
+            ">
+
+                <!-- Refund Icon -->
+                <div style="
+                    width:64px;
+                    height:64px;
+                    margin:0 auto 20px;
+                    background:#ffedd5;
+                    border-radius:50%;
+                    line-height:64px;
+                    color:#ea580c;
+                    font-size:30px;
+                    font-weight:bold;
+                ">
+                    &#8634;
+                </div>
+
+                <h2 style="
+                    margin:0 0 12px;
+                    color:#0f172a;
+                    font-size:26px;
+                    line-height:1.3;
+                ">
+                    Refund Issued
+                </h2>
+
+                <p style="
+                    margin:0 0 8px;
+                    color:#334155;
+                    font-size:15px;
+                    line-height:1.6;
+                ">
+                    Hi <strong><%= name %></strong>,
+                </p>
+
+                <p style="
+                    max-width:490px;
+                    margin:0 auto;
+                    color:#64748b;
+                    font-size:15px;
+                    line-height:1.7;
+                ">
+                    Your payment for work order
+                    <strong style="color:#0f766e;"><%= workOrderNumber %></strong>
+                    has been refunded successfully. The amount will be returned to
+                    your original bKash account.
+                </p>
+
+                <!-- Refund Information -->
+                <div style="
+                    margin:30px 0 0;
+                    padding:20px;
+                    background:#fff7ed;
+                    border:1px solid #fdba74;
+                    border-radius:10px;
+                    text-align:left;
+                ">
+
+                    <p style="
+                        margin:0 0 12px;
+                        color:#ea580c;
+                        font-size:14px;
+                        font-weight:600;
+                    ">
+                        Refund details
+                    </p>
+
+                    <p style="
+                        margin:0;
+                        color:#64748b;
+                        font-size:13px;
+                        line-height:1.7;
+                    ">
+                        <strong style="color:#334155;">Work Order:</strong>
+                        <%= workOrderNumber %> &mdash; <%= title %>
+                    </p>
+
+                    <p style="
+                        margin:5px 0 0;
+                        color:#64748b;
+                        font-size:13px;
+                        line-height:1.7;
+                    ">
+                        <strong style="color:#334155;">Refund Amount:</strong>
+                        <span style="color:#ea580c; font-weight:700;">
+                            &#2547; <%= refundAmount %>
+                        </span>
+                    </p>
+
+                    <% if (refundReason) { %>
+                        <p style="
+                            margin:5px 0 0;
+                            color:#64748b;
+                            font-size:13px;
+                            line-height:1.7;
+                        ">
+                            <strong style="color:#334155;">Reason:</strong>
+                            <%= refundReason %>
+                        </p>
+                    <% } %>
+
+                    <p style="
+                        margin:5px 0 0;
+                        color:#64748b;
+                        font-size:13px;
+                        line-height:1.7;
+                    ">
+                        <strong style="color:#334155;">Refund Transaction ID:</strong>
+                        <%= refundTrxId %>
+                    </p>
+
+                    <% if (refundAt) { %>
+                        <p style="
+                            margin:5px 0 0;
+                            color:#64748b;
+                            font-size:13px;
+                            line-height:1.7;
+                        ">
+                            <strong style="color:#334155;">Refund Date:</strong>
+                            <%= refundAt %>
+                        </p>
+                    <% } %>
+
+                </div>
+
+                <p style="
+                    margin:24px 0 0;
+                    color:#64748b;
+                    font-size:13px;
+                    line-height:1.7;
+                ">
+                    If you have any questions, feel free to reach out to our
+                    support team. Thank you for using
+                    <strong style="color:#0f766e;">FieldNexus.</strong>
+                </p>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="
+                padding:24px 30px;
+                background:#f8fafc;
+                border-top:1px solid #e2e8f0;
+                text-align:center;
+            ">
+
+                <p style="
+                    margin:0 0 7px;
+                    color:#334155;
+                    font-size:13px;
+                    font-weight:600;
+                ">
+                    FieldNexus
+                </p>
+
+                <p style="
+                    margin:0;
+                    color:#94a3b8;
+                    font-size:12px;
+                    line-height:1.5;
+                ">
+                    B2B Field Service Operations Platform
+                </p>
+
+                <p style="
+                    margin:8px 0 0;
+                    color:#94a3b8;
+                    font-size:12px;
+                    line-height:1.5;
+                ">
+                    This is an automated email. Please do not reply.
+                </p>
+
+                <p style="
+                    margin:10px 0 0;
+                    color:#94a3b8;
+                    font-size:11px;
+                ">
+                    &copy; <%= new Date().getFullYear() %> FieldNexus.
+                    All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

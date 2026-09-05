@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
+import type { RequestUser } from "../../middlewares/checkAuth";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AdminService } from "./admin.service";
@@ -32,13 +33,33 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.params.id as string;
 	const payload = req.body;
+	const user = req.user as RequestUser;
 
-	const result = await AdminService.updateUserStatus(userId, payload);
+	const result = await AdminService.updateUserStatus(
+		userId,
+		payload,
+		user,
+		req.ip,
+	);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: "User status updated successfully",
+		data: result,
+	});
+});
+
+const restoreUser = catchAsync(async (req: Request, res: Response) => {
+	const userId = req.params.id as string;
+	const user = req.user as RequestUser;
+
+	const result = await AdminService.restoreUser(userId, user, req.ip);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User restored successfully",
 		data: result,
 	});
 });
@@ -74,6 +95,7 @@ export const AdminController = {
 	getDashboardStats,
 	getAllUsers,
 	updateUserStatus,
+	restoreUser,
 	getAuditLogs,
 	getVendorPerformance,
 };

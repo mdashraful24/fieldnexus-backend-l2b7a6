@@ -1,8 +1,13 @@
 import httpStatus from "http-status";
-import { UserStatus, WorkOrderStatus } from "../../../generated/prisma/enums";
+import {
+	Role,
+	UserStatus,
+	WorkOrderStatus,
+} from "../../../generated/prisma/enums";
 import type { UserWhereInput } from "../../../generated/prisma/models";
 import type { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
+import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
 import type { IUpdateUserStatusPayload } from "./admin.interface";
 
@@ -77,7 +82,11 @@ const getAllUsers = async (query: IQuery) => {
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
-	const andConditions: UserWhereInput[] = [{ isDeleted: false }];
+	const andConditions: UserWhereInput[] = [];
+
+	if (query.includeDeleted !== "true") {
+		andConditions.push({ isDeleted: false });
+	}
 
 	if (query.searchTerm) {
 		andConditions.push({
@@ -136,13 +145,29 @@ const getAllUsers = async (query: IQuery) => {
 const updateUserStatus = async (
 	userId: string,
 	payload: IUpdateUserStatusPayload,
+	actor: RequestUser,
+	ipAddress?: string,
 ) => {
 	const user = await prisma.user.findUnique({
-		where: { id: userId, isDeleted: false },
+		where: { id: userId },
 	});
 
 	if (!user) {
 		throw new AppError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	if (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Only a super admin can update the status of an admin",
+		);
+	}
+
+	if (user.isDeleted && payload.status === UserStatus.DELETED) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"User is already deleted. Use the restore endpoint to reactivate the user.",
+		);
 	}
 
 	const updatedUser = await prisma.user.update({
@@ -151,7 +176,7 @@ const updateUserStatus = async (
 			status: payload.status,
 			...(payload.status === UserStatus.DELETED
 				? { isDeleted: true, deletedAt: new Date() }
-				: {}),
+				: { isDeleted: false, deletedAt: null }),
 		},
 		select: {
 			id: true,
@@ -162,7 +187,80 @@ const updateUserStatus = async (
 		},
 	});
 
+	await prisma.auditLog.create({
+		data: {
+			action: "USER_STATUS_UPDATED",
+			entityType: "User",
+			entityId: user.id,
+			ipAddress: ipAddress ?? null,
+			oldValue: { status: user.status, isDeleted: user.isDeleted },
+			newValue: {
+				status: updatedUser.status,
+				isDeleted: updatedUser.status === UserStatus.DELETED,
+			},
+			userId: actor.userId,
+		},
+	});
+
 	return updatedUser;
+};
+
+const restoreUser = async (
+	userId: string,
+	actor: RequestUser,
+	ipAddress?: string,
+) => {
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+	});
+
+	if (!user) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	if (!user.isDeleted) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"User is not deleted, nothing to restore",
+		);
+	}
+
+	if (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Only a super admin can restore an admin user",
+		);
+	}
+
+	const restoredUser = await prisma.user.update({
+		where: { id: userId },
+		data: {
+			status: UserStatus.ACTIVE,
+			isDeleted: false,
+			deletedAt: null,
+		},
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			role: true,
+			status: true,
+		},
+	});
+
+	await prisma.auditLog.create({
+		data: {
+			action: "USER_RESTORED",
+			entityType: "User",
+			entityId: user.id,
+			ipAddress: ipAddress ?? null,
+			oldValue: { status: user.status, isDeleted: user.isDeleted },
+			newValue: { status: restoredUser.status, isDeleted: false },
+			userId: actor.userId,
+		},
+	});
+
+	return restoredUser;
 };
 
 const getAuditLogs = async (query: IQuery) => {
@@ -292,6 +390,7 @@ export const AdminService = {
 	getDashboardStats,
 	getAllUsers,
 	updateUserStatus,
+	restoreUser,
 	getAuditLogs,
 	getVendorPerformance,
 };

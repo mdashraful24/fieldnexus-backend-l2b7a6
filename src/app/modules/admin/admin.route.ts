@@ -9,24 +9,38 @@ const router = Router();
 
 router.get(
 	"/dashboard-stats",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	AdminController.getDashboardStats,
 );
 
-router.get("/users", auth(Role.ADMIN), AdminController.getAllUsers);
+router.get(
+	"/users",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	AdminController.getAllUsers,
+);
 
 router.patch(
 	"/users/:id/status",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(adminValidation.UpdateUserStatusZodSchema),
 	AdminController.updateUserStatus,
 );
 
-router.get("/audit-logs", auth(Role.ADMIN), AdminController.getAuditLogs);
+router.patch(
+	"/users/:id/restore",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	AdminController.restoreUser,
+);
+
+router.get(
+	"/audit-logs",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	AdminController.getAuditLogs,
+);
 
 router.get(
 	"/vendors/:id/performance",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	AdminController.getVendorPerformance,
 );
 

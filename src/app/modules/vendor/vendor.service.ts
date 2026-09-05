@@ -71,7 +71,9 @@ const getAllVendors = async (query: IQuery) => {
 		});
 	}
 
-	andConditions.push({ isDeleted: false });
+	if (query.includeDeleted !== "true") {
+		andConditions.push({ isDeleted: false });
+	}
 
 	const whereCondition: VendorWhereInput = {
 		AND: andConditions,
@@ -202,7 +204,37 @@ const deleteVendor = async (vendorId: string) => {
 	return null;
 };
 
-const addMember = async (vendorId: string, payload: IAddVendorMemberPayload) => {
+const restoreVendor = async (vendorId: string) => {
+	const existingVendor = await prisma.vendor.findUnique({
+		where: { id: vendorId },
+	});
+
+	if (!existingVendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	if (!existingVendor.isDeleted) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Vendor is not deleted, nothing to restore",
+		);
+	}
+
+	const restoredVendor = await prisma.vendor.update({
+		where: { id: vendorId },
+		data: {
+			isDeleted: false,
+			deletedAt: null,
+		},
+	});
+
+	return restoredVendor;
+};
+
+const addMember = async (
+	vendorId: string,
+	payload: IAddVendorMemberPayload,
+) => {
 	const vendor = await prisma.vendor.findUnique({
 		where: { id: vendorId, isDeleted: false },
 	});
@@ -342,7 +374,10 @@ const removeMember = async (vendorId: string, technicianId: string) => {
 	});
 
 	if (!member || member.isDeleted) {
-		throw new AppError(httpStatus.NOT_FOUND, "Technician is not a member of this vendor");
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			"Technician is not a member of this vendor",
+		);
 	}
 
 	await prisma.vendorMember.update({
@@ -357,13 +392,59 @@ const removeMember = async (vendorId: string, technicianId: string) => {
 	return null;
 };
 
+const restoreMember = async (vendorId: string, technicianId: string) => {
+	const vendor = await prisma.vendor.findUnique({
+		where: { id: vendorId, isDeleted: false },
+	});
+
+	if (!vendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	const member = await prisma.vendorMember.findUnique({
+		where: {
+			vendorId_technicianId: {
+				vendorId,
+				technicianId,
+			},
+		},
+	});
+
+	if (!member) {
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			"Technician is not a member of this vendor",
+		);
+	}
+
+	if (!member.isDeleted) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Vendor member is not deleted, nothing to restore",
+		);
+	}
+
+	const restoredMember = await prisma.vendorMember.update({
+		where: { id: member.id },
+		data: {
+			isDeleted: false,
+			deletedAt: null,
+			isActive: true,
+		},
+	});
+
+	return restoredMember;
+};
+
 export const VendorService = {
 	createVendor,
 	getAllVendors,
 	getVendorById,
 	updateVendor,
 	deleteVendor,
+	restoreVendor,
 	addMember,
 	getMembers,
 	removeMember,
+	restoreMember,
 };

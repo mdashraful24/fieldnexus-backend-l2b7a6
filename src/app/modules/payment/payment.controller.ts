@@ -54,9 +54,40 @@ const getAllPayments = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const cancelPayment = catchAsync(async (req: Request, res: Response) => {
+	const paymentId = req.params.paymentId as string;
+	const user = req.user as RequestUser;
+
+	const result = await PaymentService.cancelPayment(paymentId, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Payment cancelled successfully",
+		data: result,
+	});
+});
+
+const refundPayment = catchAsync(async (req: Request, res: Response) => {
+	const paymentId = req.params.paymentId as string;
+	const payload = req.body;
+	const user = req.user as RequestUser;
+
+	const result = await PaymentService.refundPayment(paymentId, payload, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Payment refunded successfully",
+		data: result,
+	});
+});
+
 export const PaymentController = {
 	initiatePayment,
 	paymentCallback,
 	getPaymentById,
 	getAllPayments,
+	cancelPayment,
+	refundPayment,
 };

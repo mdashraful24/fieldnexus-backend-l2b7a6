@@ -25,6 +25,16 @@ router.patch(
 	ServiceCategoryController.updateServiceCategory,
 );
 
-router.delete("/:id", auth(Role.ADMIN), ServiceCategoryController.deleteServiceCategory);
+router.patch(
+	"/:id/restore",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	ServiceCategoryController.restoreServiceCategory,
+);
+
+router.delete(
+	"/:id",
+	auth(Role.ADMIN),
+	ServiceCategoryController.deleteServiceCategory,
+);
 
 export const ServiceCategoryRoutes = router;

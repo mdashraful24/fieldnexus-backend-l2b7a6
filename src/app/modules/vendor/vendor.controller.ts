@@ -71,6 +71,19 @@ const deleteVendor = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const restoreVendor = catchAsync(async (req: Request, res: Response) => {
+	const id = req.params.id as string;
+
+	const result = await VendorService.restoreVendor(id);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Vendor restored successfully",
+		data: result,
+	});
+});
+
 const addMember = catchAsync(async (req: Request, res: Response) => {
 	const vendorId = req.params.vendorId as string;
 	const payload = req.body;
@@ -112,13 +125,29 @@ const removeMember = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const restoreMember = catchAsync(async (req: Request, res: Response) => {
+	const vendorId = req.params.vendorId as string;
+	const technicianId = req.params.technicianId as string;
+
+	const result = await VendorService.restoreMember(vendorId, technicianId);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Technician restored to vendor successfully",
+		data: result,
+	});
+});
+
 export const VendorController = {
 	createVendor,
 	getAllVendors,
 	getVendorById,
 	updateVendor,
 	deleteVendor,
+	restoreVendor,
 	addMember,
 	getMembers,
 	removeMember,
+	restoreMember,
 };

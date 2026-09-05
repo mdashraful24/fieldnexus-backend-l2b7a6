@@ -1,4 +1,6 @@
+import ejs from "ejs";
 import httpStatus from "http-status";
+import path from "path";
 import type { Prisma } from "../../../generated/prisma/client";
 import type { WorkOrderWhereInput } from "../../../generated/prisma/models";
 import {
@@ -6,7 +8,9 @@ import {
 	WorkOrderPriority,
 	WorkOrderStatus,
 } from "../../../generated/prisma/enums";
+import config from "../../config";
 import { prisma } from "../../lib/prisma";
+import { transporter } from "../../lib/nodemailer";
 import { AppError } from "../../utils/AppError";
 import type { IQuery } from "../../interfaces";
 import type { RequestUser } from "../../middlewares/checkAuth";
@@ -405,6 +409,42 @@ const updateWorkOrder = async (
 	return updatedWorkOrder;
 };
 
+const sendWorkOrderCancellationEmail = async (workOrderId: string) => {
+	const workOrder = await prisma.workOrder.findUnique({
+		where: { id: workOrderId },
+		include: {
+			customer: true,
+			payment: true,
+		},
+	});
+
+	if (!workOrder) {
+		throw new AppError(httpStatus.NOT_FOUND, "Work order not found");
+	}
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/work-order-cancelled.ejs",
+	);
+
+	const templateData = {
+		name: workOrder.customer.name,
+		workOrderNumber: workOrder.workOrderNumber,
+		title: workOrder.title,
+		amount: workOrder.payment?.amount?.toString(),
+		cancellationReason: workOrder.cancellationReason,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: config.email_sender,
+		to: workOrder.customer.email,
+		subject: `Work Order Cancelled - ${workOrder.workOrderNumber} - FieldNexus`,
+		html,
+	});
+};
+
 const updateWorkOrderStatus = async (
 	workOrderId: string,
 	payload: IUpdateWorkOrderStatusPayload,
@@ -549,6 +589,10 @@ const updateWorkOrderStatus = async (
 	const updatedWorkOrder = await prisma.workOrder.findUnique({
 		where: { id: workOrderId },
 	});
+
+	if (newStatus === WorkOrderStatus.CANCELLED) {
+		await sendWorkOrderCancellationEmail(workOrderId);
+	}
 
 	return updatedWorkOrder;
 };

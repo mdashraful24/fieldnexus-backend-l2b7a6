@@ -67,7 +67,9 @@ const getAllServiceCategories = async (query: IQuery) => {
 		});
 	}
 
-	andConditions.push({ isDeleted: false });
+	if (query.includeDeleted !== "true") {
+		andConditions.push({ isDeleted: false });
+	}
 
 	const whereCondition: ServiceCategoryWhereInput = {
 		AND: andConditions,
@@ -180,10 +182,39 @@ const deleteServiceCategory = async (categoryId: string) => {
 	return null;
 };
 
+const restoreServiceCategory = async (categoryId: string) => {
+	const existingCategory = await prisma.serviceCategory.findUnique({
+		where: { id: categoryId },
+	});
+
+	if (!existingCategory) {
+		throw new AppError(httpStatus.NOT_FOUND, "Service category not found");
+	}
+
+	if (!existingCategory.isDeleted) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Service category is not deleted, nothing to restore",
+		);
+	}
+
+	const restoredCategory = await prisma.serviceCategory.update({
+		where: { id: categoryId },
+		data: {
+			isDeleted: false,
+			deletedAt: null,
+			isActive: true,
+		},
+	});
+
+	return restoredCategory;
+};
+
 export const ServiceCategoryService = {
 	createServiceCategory,
 	getAllServiceCategories,
 	getServiceCategoryById,
 	updateServiceCategory,
 	deleteServiceCategory,
+	restoreServiceCategory,
 };

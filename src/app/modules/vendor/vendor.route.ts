@@ -27,6 +27,12 @@ router.patch(
 
 router.delete("/:id", auth(Role.ADMIN), VendorController.deleteVendor);
 
+router.patch(
+	"/:id/restore",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	VendorController.restoreVendor,
+);
+
 router.post(
 	"/:vendorId/members",
 	auth(Role.ADMIN),
@@ -40,6 +46,12 @@ router.delete(
 	"/:vendorId/members/:technicianId",
 	auth(Role.ADMIN),
 	VendorController.removeMember,
+);
+
+router.patch(
+	"/:vendorId/members/:technicianId/restore",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	VendorController.restoreMember,
 );
 
 export const VendorRoutes = router;

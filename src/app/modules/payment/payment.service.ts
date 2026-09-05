@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import ejs from "ejs";
 import httpStatus from "http-status";
 import path from "path";
@@ -5,6 +6,7 @@ import PDFDocument from "pdfkit";
 import {
 	NotificationType,
 	PaymentStatus,
+	Role,
 	WorkOrderStatus,
 } from "../../../generated/prisma/enums";
 import type { PaymentWhereInput } from "../../../generated/prisma/models";
@@ -15,7 +17,10 @@ import { transporter } from "../../lib/nodemailer";
 import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
-import type { IInitiatePaymentPayload } from "./payment.interface";
+import type {
+	IInitiatePaymentPayload,
+	IRefundPaymentPayload,
+} from "./payment.interface";
 
 const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 	const payment = await prisma.payment.findUnique({
@@ -50,15 +55,8 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 	const vendor = latestAssignment?.vendor;
 
 	const paidAt = new Date(payment.paidAt ?? new Date());
-	const formattedDate = paidAt.toLocaleDateString("en-GB", {
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
-	});
-	const formattedTime = paidAt.toLocaleTimeString("en-GB", {
-		hour: "2-digit",
-		minute: "2-digit",
-	});
+	const formattedDate = format(paidAt, "dd MMMM yyyy");
+	const formattedTime = format(paidAt, "HH:mm");
 
 	// ========================================
 	// Generate Invoice PDF
@@ -366,232 +364,280 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 	});
 };
 
-const initiatePayment = async (
-	payload: IInitiatePaymentPayload,
-	user: RequestUser,
-) => {
-	const customer = await prisma.customer.findUnique({
-		where: { userId: user.userId, isDeleted: false },
-		include: { user: { select: { email: true } } },
-	});
-
-	if (!customer) {
-		throw new AppError(httpStatus.NOT_FOUND, "Customer profile not found");
-	}
-
-	const workOrder = await prisma.workOrder.findUnique({
-		where: { id: payload.workOrderId, isDeleted: false },
+const sendRefundConfirmationEmail = async (paymentId: string) => {
+	const payment = await prisma.payment.findUnique({
+		where: { id: paymentId },
 		include: {
-			category: true,
-			payment: true,
+			customer: true,
+			workOrder: true,
 		},
-	});
-
-	if (!workOrder) {
-		throw new AppError(httpStatus.NOT_FOUND, "Work order not found");
-	}
-
-	if (customer.id !== workOrder.customerId) {
-		throw new AppError(
-			httpStatus.FORBIDDEN,
-			"You can only pay for your own work orders",
-		);
-	}
-
-	if (workOrder.status !== WorkOrderStatus.COMPLETED) {
-		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			"Payment can only be initiated for COMPLETED work orders",
-		);
-	}
-
-	if (workOrder.payment?.status === PaymentStatus.PAID) {
-		throw new AppError(
-			httpStatus.CONFLICT,
-			"This work order has already been paid",
-		);
-	}
-
-	const amount = workOrder.category.basePrice;
-
-	if (!amount) {
-		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			"No base price is set for this service category",
-		);
-	}
-
-	const payerReference = payload.payerReference ?? customer.user.email;
-
-	const bkashIdToken = await getBkashIdToken();
-
-	if (!bkashIdToken) {
-		throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
-	}
-
-	const createPaymentResponse = await fetch(
-		`${config.bkash_base_url}/tokenized/checkout/create`,
-		{
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-				Authorization: bkashIdToken,
-				"X-App-Key": config.bkash_app_key,
-			},
-			body: JSON.stringify({
-				mode: "0011",
-				payerReference,
-				callbackURL: `${config.bkash_callback_url}/payments/callback`,
-				amount: amount.toString(),
-				currency: "BDT",
-				intent: "sale",
-				merchantInvoiceNumber: workOrder.workOrderNumber,
-			}),
-		},
-	);
-
-	const createPaymentResult = await createPaymentResponse.json();
-
-	if (!createPaymentResponse.ok) {
-		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			createPaymentResult.statusMessage ?? "Failed to create bKash payment",
-		);
-	}
-
-	const payment = await prisma.payment.upsert({
-		where: { workOrderId: workOrder.id },
-		update: {
-			merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
-			bkashPaymentId: createPaymentResult.paymentID,
-			payUrl: createPaymentResult.bkashURL,
-			payerReference,
-			gatewayResponse: createPaymentResult,
-			status: PaymentStatus.UNPAID,
-		},
-		create: {
-			workOrderId: workOrder.id,
-			customerId: customer.id,
-			amount,
-			merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
-			bkashPaymentId: createPaymentResult.paymentID,
-			payUrl: createPaymentResult.bkashURL,
-			payerReference,
-			gatewayResponse: createPaymentResult,
-			status: PaymentStatus.UNPAID,
-		},
-	});
-
-	// console.log({ payment });
-
-	return {
-		paymentUrl: createPaymentResult.bkashURL,
-		paymentID: createPaymentResult.paymentID,
-		merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
-		status: payment.status,
-	};
-};
-
-const handlePaymentCallback = async (query: Record<string, unknown>) => {
-	const paymentId = query.paymentID as string | undefined;
-	const status = query.status as string | undefined;
-
-	if (!paymentId) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Payment id missing");
-	}
-
-	if (!status) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Payment status is missing");
-	}
-
-	const bkashIdToken = await getBkashIdToken();
-
-	if (!bkashIdToken) {
-		throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
-	}
-
-	const executePaymentResponse = await fetch(
-		`${config.bkash_base_url}/tokenized/checkout/execute`,
-		{
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-				Authorization: bkashIdToken,
-				"X-App-Key": config.bkash_app_key,
-			},
-			body: JSON.stringify({ paymentID: paymentId }),
-		},
-	);
-
-	const executedPaymentResult = await executePaymentResponse.json();
-
-	const payment = await prisma.payment.findFirst({
-		where: { bkashPaymentId: paymentId },
-		include: { customer: { select: { userId: true } } },
 	});
 
 	if (!payment) {
 		throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
 	}
 
-	if (status === "success") {
-		await prisma.payment.update({
-			where: { id: payment.id },
-			data: {
-				status: PaymentStatus.PAID,
-				bkashTrxId: executedPaymentResult.trxID,
-				paidAt: executedPaymentResult.paymentExecuteTime,
-			},
-		});
+	const customer = payment.customer;
+	const workOrder = payment.workOrder;
+	const refundAt = new Date(payment.refundAt ?? new Date());
+	const formattedDate = format(refundAt, "dd MMMM yyyy");
 
-		await prisma.notification.create({
-			data: {
-				userId: payment.customer.userId,
-				type: NotificationType.PAYMENT_SUCCESS,
-				message: `Payment of ${payment.amount} BDT for your work order was successful.`,
-			},
-		});
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/refund-confirmation.ejs",
+	);
 
-		await sendPaymentInvoiceEmail(payment.id, executedPaymentResult.trxID);
-
-		return {
-			redirectUrl: `${config.frontend_url}?payment=success`,
-		};
-	}
-
-	if (status === "failure") {
-		await prisma.payment.update({
-			where: { id: payment.id },
-			data: {
-				status: PaymentStatus.FAILED,
-				gatewayResponse: executedPaymentResult,
-			},
-		});
-
-		return {
-			redirectUrl: `${config.frontend_url}?payment=failure`,
-		};
-	}
-
-	if (status === "cancel") {
-		await prisma.payment.update({
-			where: { id: payment.id },
-			data: {
-				status: PaymentStatus.CANCELLED,
-				gatewayResponse: executedPaymentResult,
-			},
-		});
-
-		return {
-			redirectUrl: `${config.frontend_url}?payment=cancel`,
-		};
-	}
-
-	return {
-		redirectUrl: `${config.frontend_url}?payment=error`,
+	const templateData = {
+		name: customer.name,
+		workOrderNumber: workOrder.workOrderNumber,
+		title: workOrder.title,
+		refundAmount: payment.refundAmount?.toString() ?? payment.amount.toString(),
+		refundReason: payment.refundReason,
+		refundTrxId: payment.refundTrxId,
+		refundAt: formattedDate,
 	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: config.email_sender,
+		to: customer.email,
+		subject: `Refund Confirmation - ${workOrder.workOrderNumber} - FieldNexus`,
+		html,
+	});
+};
+
+const initiatePayment = async (
+	payload: IInitiatePaymentPayload,
+	user: RequestUser,
+) => {
+	const transactionResult = await prisma.$transaction(async(tx)=>{
+		const customer = await tx.customer.findUnique({
+			where: { userId: user.userId, isDeleted: false },
+			include: { user: { select: { email: true } } },
+		});
+
+		if (!customer) {
+			throw new AppError(httpStatus.NOT_FOUND, "Customer profile not found");
+		}
+
+		const workOrder = await tx.workOrder.findUnique({
+			where: { id: payload.workOrderId, isDeleted: false },
+			include: {
+				category: true,
+				payment: true,
+			},
+		});
+
+		if (!workOrder) {
+			throw new AppError(httpStatus.NOT_FOUND, "Work order not found");
+		}
+
+		if (customer.id !== workOrder.customerId) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You can only pay for your own work orders",
+			);
+		}
+
+		if (workOrder.status !== WorkOrderStatus.COMPLETED) {
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				"Payment can only be initiated for COMPLETED work orders",
+			);
+		}
+
+		if (workOrder.payment?.status === PaymentStatus.PAID) {
+			throw new AppError(
+				httpStatus.CONFLICT,
+				"This work order has already been paid",
+			);
+		}
+
+		const amount = workOrder.category.basePrice;
+
+		if (!amount) {
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				"No base price is set for this service category",
+			);
+		}
+
+		const payerReference = payload.payerReference ?? customer.user.email;
+
+		const bkashIdToken = await getBkashIdToken();
+
+		if (!bkashIdToken) {
+			throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
+		}
+
+		const createPaymentResponse = await fetch(
+			`${config.bkash_base_url}/tokenized/checkout/create`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+					Authorization: bkashIdToken,
+					"X-App-Key": config.bkash_app_key,
+				},
+				body: JSON.stringify({
+					mode: "0011",
+					payerReference,
+					callbackURL: `${config.bkash_callback_url}/payments/callback`,
+					amount: amount.toString(),
+					currency: "BDT",
+					intent: "sale",
+					merchantInvoiceNumber: workOrder.workOrderNumber,
+				}),
+			},
+		);
+
+		const createPaymentResult = await createPaymentResponse.json();
+
+		if (!createPaymentResponse.ok) {
+			throw new AppError(
+				httpStatus.BAD_REQUEST,
+				createPaymentResult.statusMessage ?? "Failed to create bKash payment",
+			);
+		}
+
+		const payment = await tx.payment.upsert({
+			where: { workOrderId: workOrder.id },
+			update: {
+				merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
+				bkashPaymentId: createPaymentResult.paymentID,
+				payUrl: createPaymentResult.bkashURL,
+				payerReference,
+				gatewayResponse: createPaymentResult,
+				status: PaymentStatus.UNPAID,
+			},
+			create: {
+				workOrderId: workOrder.id,
+				customerId: customer.id,
+				amount,
+				merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
+				bkashPaymentId: createPaymentResult.paymentID,
+				payUrl: createPaymentResult.bkashURL,
+				payerReference,
+				gatewayResponse: createPaymentResult,
+				status: PaymentStatus.UNPAID,
+			},
+		});
+
+		// console.log({ payment });
+
+		return {
+			paymentUrl: createPaymentResult.bkashURL,
+		};
+	});
+
+	return transactionResult;
+};
+
+const handlePaymentCallback = async (query: Record<string, unknown>) => {
+	const transactionResult = await prisma.$transaction(async(tx)=>{
+		const paymentId = query.paymentID as string | undefined;
+		const status = query.status as string | undefined;
+
+		if (!paymentId) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Payment id missing");
+		}
+
+		if (!status) {
+			throw new AppError(httpStatus.BAD_REQUEST, "Payment status is missing");
+		}
+
+		const bkashIdToken = await getBkashIdToken();
+
+		if (!bkashIdToken) {
+			throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
+		}
+
+		const executePaymentResponse = await fetch(
+			`${config.bkash_base_url}/tokenized/checkout/execute`,
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+					Authorization: bkashIdToken,
+					"X-App-Key": config.bkash_app_key,
+				},
+				body: JSON.stringify({ paymentID: paymentId }),
+			},
+		);
+
+		const executedPaymentResult = await executePaymentResponse.json();
+
+		const payment = await prisma.payment.findFirst({
+			where: { bkashPaymentId: paymentId },
+			include: { customer: { select: { userId: true } } },
+		});
+
+		if (!payment) {
+			throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+		}
+
+		if (status === "success") {
+			await prisma.payment.update({
+				where: { id: payment.id },
+				data: {
+					status: PaymentStatus.PAID,
+					bkashTrxId: executedPaymentResult.trxID,
+					paidAt: executedPaymentResult.paymentExecuteTime,
+				},
+			});
+
+			await prisma.notification.create({
+				data: {
+					userId: payment.customer.userId,
+					type: NotificationType.PAYMENT_SUCCESS,
+					message: `Payment of ${payment.amount} BDT for your work order was successful.`,
+				},
+			});
+
+			await sendPaymentInvoiceEmail(payment.id, executedPaymentResult.trxID);
+
+			return {
+				redirectUrl: `${config.frontend_url}?payment=success`,
+			};
+		}
+
+		if (status === "failure") {
+			await prisma.payment.update({
+				where: { id: payment.id },
+				data: {
+					status: PaymentStatus.FAILED,
+					gatewayResponse: executedPaymentResult,
+				},
+			});
+
+			return {
+				redirectUrl: `${config.frontend_url}?payment=failure`,
+			};
+		}
+
+		if (status === "cancel") {
+			await prisma.payment.update({
+				where: { id: payment.id },
+				data: {
+					status: PaymentStatus.CANCELLED,
+					gatewayResponse: executedPaymentResult,
+				},
+			});
+
+			return {
+				redirectUrl: `${config.frontend_url}?payment=cancel`,
+			};
+		}
+
+		return {
+			redirectUrl: `${config.frontend_url}?payment=error`,
+		};
+	});
+
+	return transactionResult;
 };
 
 const getPaymentById = async (paymentId: string, user: RequestUser) => {
@@ -616,11 +662,11 @@ const getPaymentById = async (paymentId: string, user: RequestUser) => {
 		throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
 	}
 
-	if (user.role === "ADMIN") {
+	if (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) {
 		return payment;
 	}
 
-	if (user.role === "CUSTOMER") {
+	if (user.role === Role.CUSTOMER) {
 		const customer = await prisma.customer.findUnique({
 			where: { userId: user.userId },
 			select: { id: true },
@@ -636,6 +682,31 @@ const getPaymentById = async (paymentId: string, user: RequestUser) => {
 		return payment;
 	}
 
+	if (user.role === Role.TECHNICIAN) {
+		const technician = await prisma.technician.findUnique({
+			where: { userId: user.userId },
+			select: { id: true },
+		});
+
+		const assignment = await prisma.workAssignment.findFirst({
+			where: {
+				workOrderId: payment.workOrderId,
+				technicianId: technician?.id,
+				isDeleted: false,
+			},
+			select: { id: true },
+		});
+
+		if (!technician || !assignment) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You can only view payments of work orders assigned to you",
+			);
+		}
+
+		return payment;
+	}
+
 	throw new AppError(httpStatus.FORBIDDEN, "Forbidden");
 };
 
@@ -643,6 +714,8 @@ const getAllPayments = async (query: IQuery, user: RequestUser) => {
 	const limit = query.limit ? Number(query.limit) : 10;
 	const page = query.page ? Number(query.page) : 1;
 	const skip = (page - 1) * limit;
+	const sortBy = query.sortBy ? query.sortBy : "createdAt";
+	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
 	const andConditions: PaymentWhereInput[] = [{ isDeleted: false }];
 
@@ -652,7 +725,7 @@ const getAllPayments = async (query: IQuery, user: RequestUser) => {
 		});
 	}
 
-	if (user.role === "CUSTOMER") {
+	if (user.role === Role.CUSTOMER) {
 		const customer = await prisma.customer.findUnique({
 			where: { userId: user.userId },
 			select: { id: true },
@@ -663,37 +736,280 @@ const getAllPayments = async (query: IQuery, user: RequestUser) => {
 		}
 	}
 
-	const where: PaymentWhereInput = { AND: andConditions };
+	if (user.role === Role.TECHNICIAN) {
+		const technician = await prisma.technician.findUnique({
+			where: { userId: user.userId },
+			select: { id: true },
+		});
 
-	const [payments, total] = await prisma.$transaction([
-		prisma.payment.findMany({
-			where,
-			orderBy: { createdAt: "desc" },
-			skip,
-			take: limit,
-			include: {
+		if (technician) {
+			andConditions.push({
 				workOrder: {
-					select: {
-						id: true,
-						workOrderNumber: true,
-						title: true,
-						status: true,
+					workAssignments: {
+						some: {
+							technicianId: technician.id,
+							isDeleted: false,
+						},
 					},
 				},
+			});
+		}
+	}
+
+	const where: PaymentWhereInput = { AND: andConditions };
+
+	const payments = await prisma.payment.findMany({
+		where,
+		take: limit,
+		skip: skip,
+		orderBy: {
+			[sortBy]: sortOrder,
+		},
+		include: {
+			workOrder: {
+				select: {
+					id: true,
+					workOrderNumber: true,
+					title: true,
+					status: true,
+				},
 			},
-		}),
-		prisma.payment.count({ where }),
-	]);
+			customer: {
+				select: { id: true, name: true, email: true },
+			},
+		},
+	});
+
+	const totalPayments = await prisma.payment.count({
+		where: {
+			AND: andConditions,
+		},
+	});
 
 	return {
+		data: payments,
 		meta: {
 			page,
 			limit,
-			total,
-			totalPages: Math.ceil(total / limit),
+			total: totalPayments,
+			totalPages: Math.ceil(totalPayments / limit),
 		},
-		data: payments,
 	};
+};
+
+const cancelPayment = async (paymentId: string, user: RequestUser) => {
+	const payment = await prisma.payment.findUnique({
+		where: { id: paymentId, isDeleted: false },
+	});
+
+	if (!payment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+	}
+
+	if (user.role !== Role.ADMIN && user.role !== Role.SUPER_ADMIN) {
+		if (user.role !== Role.CUSTOMER) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You are not authorized to cancel this payment",
+			);
+		}
+
+		const customer = await prisma.customer.findUnique({
+			where: { userId: user.userId },
+			select: { id: true },
+		});
+
+		if (!customer || customer.id !== payment.customerId) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You can only cancel your own payments",
+			);
+		}
+	}
+
+	if (payment.status === PaymentStatus.PAID) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"A paid payment cannot be cancelled. Please request a refund instead.",
+		);
+	}
+
+	if (payment.status === PaymentStatus.REFUNDED) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"A refunded payment cannot be cancelled",
+		);
+	}
+
+	if (payment.status === PaymentStatus.CANCELLED) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"Payment has already been cancelled",
+		);
+	}
+
+	const updatedPayment = await prisma.payment.update({
+		where: { id: payment.id },
+		data: {
+			status: PaymentStatus.CANCELLED,
+		},
+		select: {
+			id: true,
+			amount: true,
+			currency: true,
+			gateway: true,
+			status: true,
+			merchantInvoiceNumber: true,
+			bkashPaymentId: true,
+			bkashTrxId: true,
+			payerReference: true,
+			workOrder: true,
+			customer: true,
+		},
+	});
+
+	return updatedPayment;
+};
+
+const refundPayment = async (
+	paymentId: string,
+	payload: IRefundPaymentPayload,
+	user: RequestUser,
+) => {
+	const payment = await prisma.payment.findUnique({
+		where: { id: paymentId, isDeleted: false },
+		include: {
+			workOrder: {
+				select: {
+					id: true,
+					workOrderNumber: true,
+					title: true,
+					status: true,
+				},
+			},
+			customer: {
+				select: { id: true, name: true, email: true },
+			},
+		},
+	});
+
+	if (!payment) {
+		throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+	}
+
+	if (user.role !== Role.ADMIN && user.role !== Role.SUPER_ADMIN) {
+		if (user.role !== Role.CUSTOMER) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You are not authorized to refund this payment",
+			);
+		}
+
+		const customer = await prisma.customer.findUnique({
+			where: { userId: user.userId },
+			select: { id: true },
+		});
+
+		if (!customer || customer.id !== payment.customerId) {
+			throw new AppError(
+				httpStatus.FORBIDDEN,
+				"You can only refund your own payments",
+			);
+		}
+	}
+
+	if (payment.status === PaymentStatus.REFUNDED) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"Payment has already been refunded",
+		);
+	}
+
+	if (payment.status === PaymentStatus.CANCELLED) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"A cancelled payment cannot be refunded",
+		);
+	}
+
+	if (payment.status !== PaymentStatus.PAID) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Only successful payments can be refunded",
+		);
+	}
+
+	if (!payment.bkashPaymentId || !payment.bkashTrxId) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"bKash payment and transaction id are missing",
+		);
+	}
+
+	const refundReason =
+		payload.reason ??
+		`Refund for work order ${payment.workOrder.workOrderNumber}`;
+
+	const bkashIdToken = await getBkashIdToken();
+
+	if (!bkashIdToken) {
+		throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
+	}
+
+	const bkashRefundPaymentResponse = await fetch(
+		`${config.bkash_base_url}/tokenized/checkout/payment/refund`,
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+				Authorization: bkashIdToken,
+				"X-App-Key": config.bkash_app_key,
+			},
+			body: JSON.stringify({
+				paymentID: payment.bkashPaymentId,
+				trxID: payment.bkashTrxId,
+				amount: payment.amount.toString(),
+				sku: "Payment Refund",
+				reason: refundReason,
+			}),
+		},
+	);
+
+	const bkashRefundPaymentResult = await bkashRefundPaymentResponse.json();
+
+	if (!bkashRefundPaymentResponse.ok) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			bkashRefundPaymentResult.statusMessage ??
+			"Failed to refund bKash payment",
+		);
+	}
+
+	const completedTime = bkashRefundPaymentResult.completedTime as
+		| string
+		| undefined;
+
+	const refundAt =
+		completedTime && !Number.isNaN(new Date(completedTime).getTime())
+			? new Date(completedTime)
+			: new Date();
+
+	const updatedPayment = await prisma.payment.update({
+		where: { id: payment.id },
+		data: {
+			status: PaymentStatus.REFUNDED,
+			refundTrxId: bkashRefundPaymentResult.refundTrxID,
+			refundAmount: bkashRefundPaymentResult.amount ?? payment.amount,
+			refundReason,
+			refundAt,
+			gatewayResponse: bkashRefundPaymentResult,
+		},
+	});
+
+	await sendRefundConfirmationEmail(payment.id);
+
+	return updatedPayment;
 };
 
 export const PaymentService = {
@@ -701,4 +1017,6 @@ export const PaymentService = {
 	handlePaymentCallback,
 	getPaymentById,
 	getAllPayments,
+	cancelPayment,
+	refundPayment,
 };

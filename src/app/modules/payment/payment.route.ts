@@ -16,15 +16,28 @@ router.post(
 
 router.get("/callback", PaymentController.paymentCallback);
 
+router.post(
+	"/:paymentId/cancel",
+	auth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN),
+	PaymentController.cancelPayment,
+);
+
+router.post(
+	"/:paymentId/refund",
+	auth(Role.CUSTOMER, Role.ADMIN, Role.SUPER_ADMIN),
+	validateRequest(paymentValidation.RefundPaymentZodSchema),
+	PaymentController.refundPayment,
+);
+
 router.get(
 	"/",
-	auth(Role.ADMIN, Role.CUSTOMER),
+	auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
 	PaymentController.getAllPayments,
 );
 
 router.get(
 	"/:paymentId",
-	auth(Role.ADMIN, Role.CUSTOMER),
+	auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
 	PaymentController.getPaymentById,
 );
 

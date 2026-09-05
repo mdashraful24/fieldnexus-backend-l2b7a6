@@ -16,6 +16,8 @@ import { PaymentRoutes } from "./app/modules/payment/payment.route";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { VendorRoutes } from "./app/modules/vendor/vendor.route";
 import { ServiceCategoryRoutes } from "./app/modules/serviceCategory/serviceCategory.route";
+import { SuperAdminRoutes } from "./app/modules/superAdmin/superAdmin.route";
+import { TechnicianApplicationRoutes } from "./app/modules/technicianApplication/technicianApplication.route";
 import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
 
 const app: Application = express();
@@ -42,6 +44,8 @@ app.use("/api/v1/work-orders", WorkOrderRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/notifications", NotificationRoutes);
 app.use("/api/v1/admin", AdminRoutes);
+app.use("/api/v1/super-admin", SuperAdminRoutes);
+app.use("/api/v1/technician-applications", TechnicianApplicationRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
