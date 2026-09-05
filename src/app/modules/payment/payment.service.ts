@@ -671,6 +671,10 @@ const getPaymentById = async (paymentId: string, user: RequestUser) => {
 				select: { id: true, name: true, email: true },
 			},
 		},
+		omit:{
+			payUrl: true,
+			gatewayResponse: true,
+		}
 	});
 
 	if (!payment) {
@@ -793,6 +797,10 @@ const getAllPayments = async (query: IQuery, user: RequestUser) => {
 				select: { id: true, name: true, email: true },
 			},
 		},
+		omit:{
+			payUrl: true,
+			gatewayResponse: true,
+		}
 	});
 
 	const totalPayments = await prisma.payment.count({

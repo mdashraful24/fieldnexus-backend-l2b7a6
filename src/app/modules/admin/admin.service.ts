@@ -1,7 +1,10 @@
 import httpStatus from "http-status";
 import {
+	PaymentStatus,
 	Role,
+	TechnicianApplicationStatus,
 	UserStatus,
+	VendorStatus,
 	WorkOrderStatus,
 } from "../../../generated/prisma/enums";
 import type { UserWhereInput } from "../../../generated/prisma/models";
@@ -19,6 +22,12 @@ const getDashboardStats = async () => {
 		totalCustomers,
 		workOrdersByStatus,
 		recentWorkOrders,
+		revenueAgg,
+		refundAgg,
+		userCounts,
+		applicationsByStatus,
+		totalVendors,
+		vendorsByStatus,
 	] = await Promise.all([
 		prisma.workOrder.count({ where: { isDeleted: false } }),
 		prisma.workOrder.count({
@@ -44,6 +53,30 @@ const getDashboardStats = async () => {
 				createdAt: true,
 			},
 		}),
+		prisma.payment.aggregate({
+			_sum: { amount: true },
+			where: { isDeleted: false, status: PaymentStatus.PAID },
+		}),
+		prisma.payment.aggregate({
+			_sum: { refundAmount: true },
+			where: { isDeleted: false, status: PaymentStatus.REFUNDED },
+		}),
+		prisma.user.groupBy({
+			by: ["role"],
+			where: { isDeleted: false },
+			_count: { _all: true },
+		}),
+		prisma.technicianApplication.groupBy({
+			by: ["status"],
+			where: { isDeleted: false },
+			_count: { _all: true },
+		}),
+		prisma.vendor.count({ where: { isDeleted: false } }),
+		prisma.vendor.groupBy({
+			by: ["status"],
+			where: { isDeleted: false },
+			_count: { _all: true },
+		}),
 	]);
 
 	const statusCounts = Object.fromEntries(
@@ -63,14 +96,57 @@ const getDashboardStats = async () => {
 					),
 				);
 
+	const roleCounts = Object.fromEntries(
+		Object.values(Role).map((role) => [role, 0]),
+	);
+	for (const row of userCounts) {
+		roleCounts[row.role] = row._count._all;
+	}
+
+	const applicationCounts = Object.fromEntries(
+		Object.values(TechnicianApplicationStatus).map((status) => [status, 0]),
+	);
+	for (const row of applicationsByStatus) {
+		applicationCounts[row.status] = row._count._all;
+	}
+
+	const vendorStatusCounts = Object.fromEntries(
+		Object.values(VendorStatus).map((status) => [status, 0]),
+	);
+	for (const row of vendorsByStatus) {
+		vendorStatusCounts[row.status] = row._count._all;
+	}
+
+	const userStatusCounts = await prisma.user.groupBy({
+		by: ["status"],
+		where: { isDeleted: false },
+		_count: { _all: true },
+	});
+	const activeUsers = Object.values(userStatusCounts)
+		.filter((row) => row.status === UserStatus.ACTIVE)
+		.reduce((sum, row) => sum + row._count._all, 0);
+
 	return {
 		totalWorkOrders,
 		completedWorkOrders,
 		activeTechnicians,
 		totalCustomers,
-		totalRevenue: 0,
+		totalTechnicians: roleCounts[Role.TECHNICIAN],
+		totalAdmins: roleCounts[Role.ADMIN],
+		// totalSuperAdmins: roleCounts[Role.SUPER_ADMIN],
+		totalUsers: roleCounts[Role.CUSTOMER] + roleCounts[Role.TECHNICIAN],
+		// totalActiveUsers: activeUsers,
+		totalRevenue: Number(revenueAgg._sum.amount ?? 0),
+		totalRefunds: Number(refundAgg._sum.refundAmount ?? 0),
+		totalVendors,
+		vendorsByStatus: vendorStatusCounts,
+		technicianApplications: applicationCounts,
+		totalTechnicianApplications: Object.values(applicationCounts).reduce(
+			(sum, count) => sum + count,
+			0,
+		),
 		slaComplianceRate,
-		recentWorkOrders,
+		// recentWorkOrders,
 		workOrdersByStatus: statusCounts,
 	};
 };
