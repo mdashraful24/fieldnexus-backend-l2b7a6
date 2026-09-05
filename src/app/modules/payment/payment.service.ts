@@ -3,6 +3,9 @@ import ejs from "ejs";
 import httpStatus from "http-status";
 import path from "path";
 import PDFDocument from "pdfkit";
+import "pdfkit/standard-fonts/Helvetica";
+import "pdfkit/standard-fonts/HelveticaBold";
+import { Prisma } from "../../../generated/prisma/client";
 import {
 	NotificationType,
 	PaymentStatus,
@@ -22,8 +25,12 @@ import type {
 	IRefundPaymentPayload,
 } from "./payment.interface";
 
-const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
-	const payment = await prisma.payment.findUnique({
+const sendPaymentInvoiceEmail = async (
+	paymentId: string,
+	trxId: string,
+	tx: Prisma.TransactionClient,
+) => {
+	const payment = await tx.payment.findUnique({
 		where: { id: paymentId },
 		include: {
 			customer: true,
@@ -54,7 +61,18 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 	const technician = latestAssignment?.technician;
 	const vendor = latestAssignment?.vendor;
 
-	const paidAt = new Date(payment.paidAt ?? new Date());
+	const normalizeBkashDate = (dateStr: string) =>
+		dateStr
+			.replace(/(\d{2}:\d{2}:\d{2}):(\d{3})/, "$1.$2")
+			.replace(/\s*GMT/, "");
+
+	const rawPaidAt = payment.paidAt;
+	const paidAt =
+		rawPaidAt && !Number.isNaN(new Date(rawPaidAt).getTime())
+			? new Date(rawPaidAt)
+			: rawPaidAt && !Number.isNaN(new Date(normalizeBkashDate(rawPaidAt)).getTime())
+				? new Date(normalizeBkashDate(rawPaidAt))
+				: new Date();
 	const formattedDate = format(paidAt, "dd MMMM yyyy");
 	const formattedTime = format(paidAt, "HH:mm");
 
@@ -282,7 +300,7 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 		.fontSize(12)
 		.font("Helvetica-Bold")
 		.fillColor(successColor)
-		.text("✓ PAYMENT SUCCESSFUL", 180, statusY + 11, {
+		.text("PAYMENT SUCCESSFUL", 180, statusY + 11, {
 			width: 235,
 			align: "center",
 		});
@@ -307,7 +325,6 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 		.text(
 			"This is a computer-generated invoice and does not require a signature.",
 			{
-				width: 545,
 				align: "center",
 			},
 		);
@@ -322,7 +339,6 @@ const sendPaymentInvoiceEmail = async (paymentId: string, trxId: string) => {
 			50,
 			760,
 			{
-				width: 495,
 				align: "center",
 			},
 		);
@@ -502,7 +518,7 @@ const initiatePayment = async (
 			);
 		}
 
-		const payment = await tx.payment.upsert({
+		await tx.payment.upsert({
 			where: { workOrderId: workOrder.id },
 			update: {
 				merchantInvoiceNumber: createPaymentResult.merchantInvoiceNumber,
@@ -570,7 +586,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 
 		const executedPaymentResult = await executePaymentResponse.json();
 
-		const payment = await prisma.payment.findFirst({
+		const payment = await tx.payment.findFirst({
 			where: { bkashPaymentId: paymentId },
 			include: { customer: { select: { userId: true } } },
 		});
@@ -580,7 +596,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 		}
 
 		if (status === "success") {
-			await prisma.payment.update({
+			await tx.payment.update({
 				where: { id: payment.id },
 				data: {
 					status: PaymentStatus.PAID,
@@ -589,7 +605,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				},
 			});
 
-			await prisma.notification.create({
+			await tx.notification.create({
 				data: {
 					userId: payment.customer.userId,
 					type: NotificationType.PAYMENT_SUCCESS,
@@ -597,13 +613,13 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				},
 			});
 
-			await sendPaymentInvoiceEmail(payment.id, executedPaymentResult.trxID);
+			await sendPaymentInvoiceEmail(payment.id, executedPaymentResult.trxID, tx);
 
 			return {
 				redirectUrl: `${config.frontend_url}?payment=success`,
 			};
 		} else if (status === "failure") {
-			await prisma.payment.update({
+			await tx.payment.update({
 				where: { id: payment.id },
 				data: {
 					status: PaymentStatus.FAILED,
@@ -615,7 +631,7 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				redirectUrl: `${config.frontend_url}?payment=failure`,
 			};
 		} else if (status === "cancel") {
-			await prisma.payment.update({
+			await tx.payment.update({
 				where: { id: payment.id },
 				data: {
 					status: PaymentStatus.CANCELLED,

@@ -19,6 +19,9 @@ import { ServiceCategoryRoutes } from "./app/modules/serviceCategory/serviceCate
 import { SuperAdminRoutes } from "./app/modules/superAdmin/superAdmin.route";
 import { TechnicianApplicationRoutes } from "./app/modules/technicianApplication/technicianApplication.route";
 import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
+import { sendResponse } from "./app/utils/sendResponse";
+
+const API_PREFIX = `/api/${config.field_nexus_api_version}`;
 
 const app: Application = express();
 
@@ -36,22 +39,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/v1/auth", AuthRoutes);
-app.use("/api/v1/user", UserRoutes);
-app.use("/api/v1/vendors", VendorRoutes);
-app.use("/api/v1/service-categories", ServiceCategoryRoutes);
-app.use("/api/v1/work-orders", WorkOrderRoutes);
-app.use("/api/v1/payments", PaymentRoutes);
-app.use("/api/v1/notifications", NotificationRoutes);
-app.use("/api/v1/admin", AdminRoutes);
-app.use("/api/v1/super-admin", SuperAdminRoutes);
-app.use("/api/v1/technician-applications", TechnicianApplicationRoutes);
+app.use(`${API_PREFIX}/auth`, AuthRoutes);
+app.use(`${API_PREFIX}/user`, UserRoutes);
+app.use(`${API_PREFIX}/vendors`, VendorRoutes);
+app.use(`${API_PREFIX}/service-categories`, ServiceCategoryRoutes);
+app.use(`${API_PREFIX}/work-orders`, WorkOrderRoutes);
+app.use(`${API_PREFIX}/payments`, PaymentRoutes);
+app.use(`${API_PREFIX}/notifications`, NotificationRoutes);
+app.use(`${API_PREFIX}/admin`, AdminRoutes);
+app.use(`${API_PREFIX}/super-admin`, SuperAdminRoutes);
+app.use(`${API_PREFIX}/technician-applications`, TechnicianApplicationRoutes);
 
-// Basic route
-app.get("/", async (req: Request, res: Response) => {
-	res.status(httpStatus.OK).json({
+// Default route
+app.get("/", (req: Request, res: Response) => {
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
 		success: true,
-		message: "Welcome to Field Nexus Backend",
+		message: "Welcome to the Field Nexus API. The server is running successfully.",
+		data: {
+			status: "Healthy",
+			author: config.project_author,
+		},
 	});
 });
 
