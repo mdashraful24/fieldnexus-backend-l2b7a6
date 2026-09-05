@@ -8,33 +8,24 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 
 ---
 
-## Screenshot
-
-> Replace this placeholder with a screenshot of the API in action (e.g. a Postman request/response or an ER diagram).
-
-```
-[ Add a nice screenshot here, e.g. ![FieldNexus API](screenshot.png) ]
-```
-
----
-
 ## Technologies Used
 
 | Category | Technology |
 |----------|------------|
 | Language / Runtime | Node.js, TypeScript |
 | Web Framework | Express.js |
-| Database | PostgreSQL (+ Prisma ORM) |
-| ORM | Prisma |
+| Database & ORM | PostgreSQL + Prisma |
+| Linting & Formatting | Biome |
 | Validation | Zod |
 | Caching / Temporary Store | Redis |
 | Authentication / Authorization | JWT (Access + Refresh Tokens), bcrypt, Google OAuth 2.0 |
 | Payment Gateway | bKash (tokenized checkout — payment + refund) |
 | Email | Nodemailer (SMTP / Gmail), EJS templates |
-| File Storage | Cloudinary (profile pictures, resumes) |
+| File Storage | Cloudinary (profile pictures, resumes) & Multer |
 | PDF Generation | PDFKit (payment invoices) |
 | Code Quality | Biome (lint + format), TypeScript strict checking |
-| Testing / Docs Tooling | Postman (collection included), Thunder Client |
+| Testing / Docs Tooling | Postman (collection included) |
+| Deployment | Vercel (Serverless Functions) |
 
 ---
 
