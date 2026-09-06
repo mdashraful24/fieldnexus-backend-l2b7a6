@@ -257,6 +257,13 @@ const loginUser = async (payload: ILoginUserPayload) => {
 		throw new AppError(httpStatus.UNAUTHORIZED, "Invalid credentials");
 	}
 
+	if (user.needPasswordChange) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Temporary password requires a change. Please use the forgot password option to set a permanent password before logging in.",
+		);
+	}
+
 	const jwtPayload = {
 		userId: user.id,
 		name: user.name,
@@ -657,6 +664,7 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 		},
 		data: {
 			password: hashedPassword,
+			needPasswordChange: false,
 		},
 	});
 

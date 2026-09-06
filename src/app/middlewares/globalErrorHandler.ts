@@ -1,8 +1,63 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import multer from "multer";
 import { Prisma } from "../../generated/prisma/client";
 import config from "../config";
 import { AppError } from "../utils/AppError";
+
+const handleMulterError = (err: multer.MulterError) => {
+	switch (err.code) {
+		case "LIMIT_FILE_SIZE":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "File is too large. Maximum allowed size is 5MB.",
+				name: "File Size Error",
+			};
+		case "LIMIT_FILE_COUNT":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "Too many files uploaded.",
+				name: "File Count Error",
+			};
+		case "LIMIT_UNEXPECTED_FILE":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message:
+					"Unexpected file field or too many files. You can upload a maximum of 5 additional documents.",
+				name: "Unexpected File Error",
+			};
+		case "LIMIT_FIELD_KEY":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "Field name is too long.",
+				name: "Upload Field Error",
+			};
+		case "LIMIT_FIELD_VALUE":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "Field value is too long.",
+				name: "Upload Field Error",
+			};
+		case "LIMIT_FIELD_COUNT":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "Too many fields in the form.",
+				name: "Upload Field Error",
+			};
+		case "LIMIT_PART_COUNT":
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: "Too many parts in the multipart form.",
+				name: "Upload Part Error",
+			};
+		default:
+			return {
+				statusCode: httpStatus.BAD_REQUEST,
+				message: err.message,
+				name: "File Upload Error",
+			};
+	}
+};
 
 const handlePrismaKnownRequestError = (
 	err: Prisma.PrismaClientKnownRequestError,
@@ -302,6 +357,13 @@ export const globalErrorHandler = async (
 		errorMessage =
 			"A critical database engine error occurred. Please contact support.";
 		errorName = "Database Engine Error";
+	}
+	// Handle Multer Upload Errors
+	else if (err instanceof multer.MulterError) {
+		const handled = handleMulterError(err);
+		statusCode = handled.statusCode;
+		errorMessage = handled.message;
+		errorName = handled.name;
 	}
 	// Handle Custom AppError
 	else if (err instanceof AppError) {

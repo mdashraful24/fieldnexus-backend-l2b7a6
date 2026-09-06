@@ -39,14 +39,14 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 - Profile management + Cloudinary profile picture upload
 
 **Vendors & Technicians**
-- Vendor management (create, approve, suspend, soft delete, restore)
+- Vendor management (create, update, soft delete, restore; the approve/suspend status change is not yet wired into the API)
 - Vendor teams — add / remove / restore technician members
 - Technician self-application flow (resume upload, email notifications on apply/approve/reject)
 - Vendor performance analytics
 
 **Work Orders (Core Business Flow)**
 - Create work orders with auto-generated `WO-YYYYMMDD-NNNN` numbers
-- Full status state machine: `PENDING → APPROVED → ASSIGNED → ACCEPTED → EN_ROUTE → IN_PROGRESS → COMPLETED`, plus `CANCELLED` and `FAILED`
+- Full status state machine: `PENDING → APPROVED → ASSIGNED → ACCEPTED → EN_ROUTE → IN_PROGRESS → COMPLETED`, plus `CANCELLED`, `REASSIGNED`, and `FAILED`
 - SLA deadline auto-calculated by priority (12h / 24h / 48h / 72h)
 - Technician assignment with schedule-conflict detection (3-hour window)
 - Service reports (description, parts used, hours worked)
@@ -93,6 +93,8 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 | `pdfkit` | PDF invoice generation for payment receipts |
 | `cloudinary` | Cloud image/document storage |
 | `multer` | File upload parsing (profile pictures, resumes) |
+| `helmet` | HTTP security headers |
+| `express-rate-limit` | Rate limiting (auth, login, OTP, and API-wide) |
 | `google-auth-library` | Google OAuth login verification |
 | `node-cron` | Scheduled jobs (cleanup of expired/unverified accounts) |
 | `date-fns` | Date formatting |
@@ -103,6 +105,7 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 | Package | Purpose |
 |---------|---------|
 | `prisma` | Prisma CLI (migrations, schema management) |
+| `tsup` | Bundle the app to `dist/` for production (`npm run build`) |
 | `tsx` | Run TypeScript directly in development |
 | `typescript` | Type checking & compilation |
 | `@biomejs/biome` | Linting + formatting |
@@ -163,7 +166,7 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 
 ### Step 5 — Test the API
 
-- Open the included collection in Postman: `Field Nexus (Backend) (V2).postman_collection.json`
+- Open the included collection in Postman: `FieldNexus_(Backend)(V2).postman_collection.json`
 - Follow the step-by-step test order in **[GUIDELINE.md](GUIDELINE.md)**
 
 ### Available scripts
@@ -171,7 +174,7 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start the server in development mode (auto-reload) |
-| `npm run build` | Type-check and compile TypeScript |
+| `npm run build` | Bundle the TypeScript source to `dist/` (tsup; not a type-check — run TypeScript separately if needed) |
 | `npm start` | Run the compiled production build |
 | `npm run lint:check` / `lint:fix` | Check / auto-fix code with Biome |
 | `npm run format:check` / `format:fix` | Check / auto-format code with Biome |
@@ -204,7 +207,9 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 - Postman Collection: **[FieldNexus_(Backend)(V2).postman_collection.json](FieldNexus_(Backend)(V2).postman_collection.json)**
 - Project Blueprint / Requirements: **[fieldnexus.md](fieldnexus.md)** , **[assignmentRequirement.md](assignmentRequirement.md)**
 
-> **Live links:** add the deployed API URL and any other links (e.g. a hosted Postman documentation page) here once the backend is deployed.
+> **Live links:** https://fieldnexus-backend.vercel.app
+
+> **API Docs links:** https://documenter.getpostman.com/view/54687734/2sBYAvwqrw
 
 ---
 

@@ -1,83 +1,34 @@
 {
   "info": {
-    "_postman_id": "361bd5f7-bde4-4e85-a0e9-7a57e0cb84c7",
-    "name": "Field Nexus (Backend) (V2)",
+    "_postman_id": "1b2dd6d5-927b-4fef-87d6-1af5da5567b2",
+    "name": "Field Nexus (Backend) (V1)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "54687734",
-    "_collection_link": "https://go.postman.co/collection/54687734-361bd5f7-bde4-4e85-a0e9-7a57e0cb84c7?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/54687734-1b2dd6d5-927b-4fef-87d6-1af5da5567b2?source=collection_link"
   },
   "item": [
     {
-      "name": "Auth",
+      "name": "Default Route",
       "item": [
         {
-          "name": "Password Recovery",
-          "item": [
-            {
-              "name": "Forgot Password",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/forgot-password",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "5000",
-                  "path": [
-                    "api",
-                    "v1",
-                    "auth",
-                    "forgot-password"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Reset Password",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\",\n    \"otp\": \"632338\",\n    \"newPassword\": \"NewStr0ng!Pass\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/reset-password",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "5000",
-                  "path": [
-                    "api",
-                    "v1",
-                    "auth",
-                    "reset-password"
-                  ]
-                }
-              },
-              "response": []
+          "name": "Default",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}",
+              "host": [
+                "{{host}}"
+              ]
             }
-          ],
-          "description": "OTP based password recovery endpoints"
-        },
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
         {
           "name": "Credentials Base",
           "item": [
@@ -96,48 +47,13 @@
                   }
                 },
                 "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/register",
-                  "protocol": "http",
+                  "raw": "{{baseUrl}}/auth/register",
                   "host": [
-                    "localhost"
+                    "{{baseUrl}}"
                   ],
-                  "port": "5000",
                   "path": [
-                    "api",
-                    "v1",
                     "auth",
                     "register"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Verify Email",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\",\n    \"otp\": \"349630\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/verify-email",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "5000",
-                  "path": [
-                    "api",
-                    "v1",
-                    "auth",
-                    "verify-email"
                   ]
                 }
               },
@@ -158,17 +74,58 @@
                   }
                 },
                 "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/login",
-                  "protocol": "http",
+                  "raw": "{{baseUrl}}/auth/login",
                   "host": [
-                    "localhost"
+                    "{{baseUrl}}"
                   ],
-                  "port": "5000",
                   "path": [
-                    "api",
-                    "v1",
                     "auth",
                     "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Email",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\",\n    \"otp\": \"349630\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/verify-email",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "verify-email"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Me",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
                   ]
                 }
               },
@@ -204,33 +161,6 @@
                 }
               },
               "response": []
-            },
-            {
-              "name": "Get Me",
-              "request": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}"
-                  }
-                ],
-                "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/me",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "5000",
-                  "path": [
-                    "api",
-                    "v1",
-                    "auth",
-                    "me"
-                  ]
-                }
-              },
-              "response": []
             }
           ],
           "description": "Email & password based authentication endpoints"
@@ -253,15 +183,11 @@
                   }
                 },
                 "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/google",
-                  "protocol": "http",
+                  "raw": "{{baseUrl}}/auth/google",
                   "host": [
-                    "localhost"
+                    "{{baseUrl}}"
                   ],
-                  "port": "5000",
                   "path": [
-                    "api",
-                    "v1",
                     "auth",
                     "google"
                   ]
@@ -271,6 +197,66 @@
             }
           ],
           "description": "Google OAuth based authentication endpoints"
+        },
+        {
+          "name": "Password Recovery",
+          "item": [
+            {
+              "name": "Forgot Password",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/forgot-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "forgot-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset Password",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\",\n    \"otp\": \"370473\",\n    \"newPassword\": \"NewStr0ng!Pass\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "OTP based password recovery endpoints"
         }
       ],
       "description": "Authentication endpoints - register, verify, login, Google OAuth, and password recovery"
@@ -282,32 +268,25 @@
           "name": "Upload Profile Picture",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
                 {
                   "key": "profilePicture",
                   "type": "file",
-                  "value": ""
+                  "src": [
+                    "/C:/Users/USER/Downloads/favicon.png"
+                  ]
                 }
               ]
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/user/upload-profile-picture",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/user/upload-profile-picture",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "user",
                 "upload-profile-picture"
               ]
@@ -319,12 +298,7 @@
           "name": "Update User Info",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"John Updated\"\n}",
@@ -335,15 +309,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/user/update-user-info",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/user/update-user-info",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "user",
                 "update-user-info"
               ]
@@ -361,12 +331,7 @@
           "name": "Create Vendor",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Dhaka Technical Solutions\",\n    \"email\": \"contact@dhakatech.com\",\n    \"phone\": \"+8801712345678\",\n    \"description\": \"Professional field service provider specializing in internet installation, AC maintenance, and electrical repair across Dhaka division.\",\n    \"address\": \"45/A, Green Road, Dhaka 1205, Bangladesh\",\n    \"serviceAreas\": \"Dhaka, Gazipur, Narayanganj\"\n}",
@@ -377,15 +342,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors"
               ]
             }
@@ -466,12 +427,7 @@
           "name": "Update Vendor",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Dhaka Technical Solutions Ltd.\",\n    \"description\": \"Updated description - Premier field service provider in Bangladesh with 10+ years of experience.\",\n    \"serviceAreas\": \"Dhaka, Gazipur, Narayanganj, Comilla\"\n}",
@@ -502,12 +458,7 @@
           "name": "Delete Vendor",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}",
               "protocol": "http",
@@ -529,12 +480,7 @@
           "name": "Restore Vendor",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/restore",
               "protocol": "http",
@@ -557,12 +503,7 @@
           "name": "Add Vendor Member (Technician)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"technicianId\": \"{{technicianId}}\"\n}",
@@ -594,12 +535,7 @@
           "name": "List Vendor Members",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members",
               "protocol": "http",
@@ -622,12 +558,7 @@
           "name": "Remove Vendor Member",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members/{{technicianId}}",
               "protocol": "http",
@@ -651,12 +582,7 @@
           "name": "Restore Vendor Member",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members/{{technicianId}}/restore",
               "protocol": "http",
@@ -681,18 +607,225 @@
       "description": "Vendor management endpoints - CRUD operations plus vendor-member (technician) management. Mutations require admin authentication."
     },
     {
+      "name": "Technician Applications",
+      "item": [
+        {
+          "name": "Apply as Technician",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Rahim Uddin",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "islam50-076@diu.edu.bd",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+8801712345678",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "Mirpur 10, Dhaka, Bangladesh",
+                  "type": "text"
+                },
+                {
+                  "key": "qualifications",
+                  "value": "BSc in Electrical Engineering, HSC",
+                  "type": "text"
+                },
+                {
+                  "key": "experienceYears",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "Certified field technician with hands-on experience in internet installation, router configuration, and network troubleshooting.",
+                  "type": "text"
+                },
+                {
+                  "key": "resume",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "additionalDocuments",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{$randomBankAccountName}}/technician-applications/apply",
+              "host": [
+                "{{$randomBankAccountName}}"
+              ],
+              "path": [
+                "technician-applications",
+                "apply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Applications (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/technician-applications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "technician-applications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Rahim",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Application Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/technician-applications/status?email=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "technician-applications",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Application by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/technician-applications/{{applicationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "technician-applications",
+                "{{applicationId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Application (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/technician-applications/{{applicationId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "technician-applications",
+                "{{applicationId}}",
+                "approve"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Application (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"rejectionReason\": \"Submitted qualifications do not meet the minimum requirements for this role.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/technician-applications/{{applicationId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "technician-applications",
+                "{{applicationId}}",
+                "reject"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Technician onboarding endpoints - technicians apply via form, admins review pending applications and approve (auto-creating the technician account + emailing credentials) or reject."
+    },
+    {
       "name": "Service Categories",
       "item": [
         {
           "name": "Create Service Category",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Internet Installation\",\n    \"description\": \"Installation and setup of home and business internet connections including fiber, broadband, and Wi-Fi routers.\",\n    \"basePrice\": 1500\n}",
@@ -777,12 +910,7 @@
           "name": "Update Service Category",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"name\": \"Internet & Network Installation\",\n    \"description\": \"Updated description - Installation and setup of home and business internet connections including fiber, broadband, Wi-Fi routers, and network cabling.\",\n    \"basePrice\": 2000,\n    \"isActive\": true\n}",
@@ -813,12 +941,7 @@
           "name": "Delete Service Category",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}",
               "protocol": "http",
@@ -840,12 +963,7 @@
           "name": "Restore Service Category",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}/restore",
               "protocol": "http",
@@ -874,12 +992,7 @@
           "name": "Create Work Order (Customer)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{customerAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"title\": \"Internet Router Not Working After Power Cut\",\n    \"description\": \"The home router is not connecting to the internet after a recent power outage. LED indicators are blinking red.\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"priority\": \"URGENT\",\n    \"scheduledAt\": \"2026-09-05T10:00:00.000Z\",\n    \"latitude\": 23.8103,\n    \"longitude\": 90.4125\n}",
@@ -906,15 +1019,32 @@
           "response": []
         },
         {
+          "name": "Get Work Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "v1",
+                "work-orders",
+                "{{workOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "List All Work Orders (Admin)",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/work-orders",
               "protocol": "http",
@@ -964,69 +1094,10 @@
           "response": []
         },
         {
-          "name": "My Assigned Work Orders (Technician)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{technicianAccessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/my-assigned",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "work-orders",
-                "my-assigned"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Work Order by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "work-orders",
-                "{{workOrderId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "Update Work Order (Admin)",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"title\": \"Internet Router Not Working After Power Cut - Rescheduled\",\n    \"description\": \"Router not connecting after power outage, customer rescheduled to a later available slot.\",\n    \"priority\": \"HIGH\",\n    \"scheduledAt\": \"2026-09-06T14:30:00.000Z\",\n    \"version\": 0\n}",
@@ -1054,42 +1125,10 @@
           "response": []
         },
         {
-          "name": "Delete Work Order (Admin)",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "work-orders",
-                "{{workOrderId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "Update Work Order Status",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"status\": \"APPROVED\",\n    \"version\": 0\n}",
@@ -1118,15 +1157,54 @@
           "response": []
         },
         {
+          "name": "Delete Work Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "v1",
+                "work-orders",
+                "{{workOrderId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Assigned Work Orders (Technician)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/v1/work-orders/my-assigned",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "v1",
+                "work-orders",
+                "my-assigned"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Assign Work Order (Admin)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"vendorId\": \"{{vendorId}}\",\n    \"technicianId\": \"{{technicianId}}\"\n}",
@@ -1158,12 +1236,7 @@
           "name": "Accept Work Order (Technician)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{technicianAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/accept",
               "protocol": "http",
@@ -1186,12 +1259,7 @@
           "name": "Reject Work Order (Technician)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{technicianAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"rejectionReason\": \"Scheduling conflict with another assigned work order at the same time\"\n}",
@@ -1223,12 +1291,7 @@
           "name": "Submit Service Report (Technician)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{technicianAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"workDescription\": \"Replaced the faulty router power adapter and reconfigured the DNS settings to restore internet connectivity.\",\n    \"issueFound\": \"The power adapter was damaged due to voltage surge during the power cut.\",\n    \"solutionProvided\": \"Installed a new compatible power adapter and updated the router firmware to the latest version.\",\n    \"partsUsed\": [\n        {\n            \"name\": \"Router Power Adapter 12V\",\n            \"quantity\": 1\n        },\n        {\n            \"name\": \"Ethernet Cable Cat6 2m\",\n            \"quantity\": 1\n        }\n    ],\n    \"hoursWorked\": 2.5\n}",
@@ -1260,12 +1323,7 @@
           "name": "Get Service Report",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/service-report",
               "protocol": "http",
@@ -1288,12 +1346,7 @@
           "name": "Submit Feedback (Customer)",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{customerAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Excellent service! The technician arrived on time and fixed the issue quickly. Very professional and knowledgeable.\"\n}",
@@ -1325,12 +1378,7 @@
           "name": "Get Feedback",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/feedback",
               "protocol": "http",
@@ -1359,15 +1407,10 @@
           "name": "Initiate Payment",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{customerAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"workOrderId\": \"{{workOrderId}}\",\n    \"payerReference\": \"01700000000\"\n}",
+              "raw": "{\n    \"workOrderId\": \"73e64edb-aee9-4f08-8548-a743ea49cfad\",\n    \"payerReference\": \"01929918378\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1375,15 +1418,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments/initiate",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments/initiate",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments",
                 "initiate"
               ]
@@ -1431,12 +1470,7 @@
           "name": "List All Payments",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/payments",
               "protocol": "http",
@@ -1474,12 +1508,7 @@
           "name": "Get Payment by ID",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/payments/{{paymentId}}",
               "protocol": "http",
@@ -1501,12 +1530,7 @@
           "name": "Cancel Payment",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{customerAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/payments/{{paymentId}}/cancel",
               "protocol": "http",
@@ -1529,12 +1553,7 @@
           "name": "Refund Payment",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"reason\": \"Payment refunded because the service was not completed as scheduled.\"\n}",
@@ -1566,115 +1585,19 @@
       "description": "Payment endpoints - bKash integration for work order payments including cancel and refund flows"
     },
     {
-      "name": "Notifications",
-      "item": [
-        {
-          "name": "Get My Notifications",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/notifications",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "notifications"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mark All Notifications as Read",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/notifications/read-all",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "notifications",
-                "read-all"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mark Notification as Read",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/notifications/{{notificationId}}/read",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "notifications",
-                "{{notificationId}}",
-                "read"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "description": "Notification management endpoints"
-    },
-    {
       "name": "Admin",
       "item": [
         {
           "name": "Get Dashboard Stats",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/admin/dashboard-stats",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/admin/dashboard-stats",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "admin",
                 "dashboard-stats"
               ]
@@ -1686,22 +1609,13 @@
           "name": "List All Users",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/admin/users",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/admin/users",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "admin",
                 "users"
               ],
@@ -1740,12 +1654,7 @@
           "name": "Update User Status",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"status\": \"BLOCKED\"\n}",
@@ -1756,15 +1665,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/admin/users/{{userId}}/status",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/status",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "admin",
                 "users",
                 "{{userId}}",
@@ -1775,54 +1680,16 @@
           "response": []
         },
         {
-          "name": "Restore User",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/admin/users/{{userId}}/restore",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{{userId}}",
-                "restore"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "Get Audit Logs",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/admin/audit-logs",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/admin/audit-logs",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "admin",
                 "audit-logs"
               ],
@@ -1851,26 +1718,37 @@
           "name": "Get Vendor Performance",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/admin/vendors/{{vendorId}}/performance",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/admin/vendors/{{vendorId}}/performance",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "admin",
                 "vendors",
                 "{{vendorId}}",
                 "performance"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore User",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/restore",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "restore"
               ]
             }
           },
@@ -1883,15 +1761,41 @@
       "name": "Super Admin",
       "item": [
         {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Operations Manager\",\n    \"email\": \"ops.manager@fieldnexus.com\",\n    \"password\": \"OpsManager@123\",\n    \"role\": \"ADMIN\",\n    \"imageUrl\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/v1/super-admin/admins",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "v1",
+                "super-admin",
+                "admins"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "List All Admins",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/super-admin/admins",
               "protocol": "http",
@@ -1927,26 +1831,12 @@
           "response": []
         },
         {
-          "name": "Create Admin",
+          "name": "Get Admin by ID",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Operations Manager\",\n    \"email\": \"ops.manager@fieldnexus.com\",\n    \"password\": \"OpsManager@123\",\n    \"role\": \"ADMIN\",\n    \"imageUrl\": \"\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins",
+              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -1956,22 +1846,27 @@
                 "api",
                 "v1",
                 "super-admin",
-                "admins"
+                "admins",
+                "{{userId}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get Admin by ID",
+          "name": "Update Admin Profile",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Senior Operations Manager\",\n    \"email\": \"senior.ops@fieldnexus.com\",\n    \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            ],
+            },
             "url": {
               "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}",
               "protocol": "http",
@@ -1994,12 +1889,7 @@
           "name": "Update Admin Status",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
-              }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"status\": \"BLOCKED\"\n}",
@@ -2032,12 +1922,7 @@
           "name": "Restore Admin",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}/restore",
               "protocol": "http",
@@ -2056,134 +1941,20 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Update Admin Profile",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{superAdminAccessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Senior Operations Manager\",\n    \"email\": \"senior.ops@fieldnexus.com\",\n    \"role\": \"ADMIN\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "super-admin",
-                "admins",
-                "{{userId}}"
-              ]
-            }
-          },
-          "response": []
         }
       ],
       "description": "Super Admin management endpoints - full lifecycle of admin accounts (create, list, update, block/restore)"
     },
     {
-      "name": "Technician Applications",
+      "name": "Notifications",
       "item": [
         {
-          "name": "Apply as Technician",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "name",
-                  "value": "Rahim Uddin",
-                  "type": "text"
-                },
-                {
-                  "key": "email",
-                  "value": "rahim.tech@example.com",
-                  "type": "text"
-                },
-                {
-                  "key": "phone",
-                  "value": "+8801712345678",
-                  "type": "text"
-                },
-                {
-                  "key": "address",
-                  "value": "Mirpur 10, Dhaka, Bangladesh",
-                  "type": "text"
-                },
-                {
-                  "key": "qualifications",
-                  "value": "BSc in Electrical Engineering, HSC",
-                  "type": "text"
-                },
-                {
-                  "key": "experienceYears",
-                  "value": "5",
-                  "type": "text"
-                },
-                {
-                  "key": "bio",
-                  "value": "Certified field technician with hands-on experience in internet installation, router configuration, and network troubleshooting.",
-                  "type": "text"
-                },
-                {
-                  "key": "resume",
-                  "type": "file",
-                  "value": ""
-                },
-                {
-                  "key": "additionalDocuments",
-                  "type": "file",
-                  "value": ""
-                },
-                {
-                  "key": "additionalDocuments",
-                  "type": "file",
-                  "value": ""
-                }
-              ]
-            },
-            "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications/apply",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "technician-applications",
-                "apply"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Check Application Status",
+          "name": "Get My Notifications",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications/status?email=rahim.tech%40example.com",
+              "raw": "http://localhost:5000/api/v1/notifications",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -2192,31 +1963,19 @@
               "path": [
                 "api",
                 "v1",
-                "technician-applications",
-                "status"
-              ],
-              "query": [
-                {
-                  "key": "email",
-                  "value": "rahim.tech@example.com"
-                }
+                "notifications"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "List All Applications (Admin)",
+          "name": "Mark All Notifications as Read",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "method": "PATCH",
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications",
+              "raw": "http://localhost:5000/api/v1/notifications/read-all",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -2225,56 +1984,20 @@
               "path": [
                 "api",
                 "v1",
-                "technician-applications"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "10",
-                  "disabled": true
-                },
-                {
-                  "key": "status",
-                  "value": "PENDING",
-                  "disabled": true
-                },
-                {
-                  "key": "sortBy",
-                  "value": "createdAt",
-                  "disabled": true
-                },
-                {
-                  "key": "sortOrder",
-                  "value": "desc",
-                  "disabled": true
-                },
-                {
-                  "key": "searchTerm",
-                  "value": "Rahim",
-                  "disabled": true
-                }
+                "notifications",
+                "read-all"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get Application by ID (Admin)",
+          "name": "Mark Notification as Read",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
+            "method": "PATCH",
+            "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications/{{applicationId}}",
+              "raw": "http://localhost:5000/api/v1/notifications/{{notificationId}}/read",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -2283,133 +2006,29 @@
               "path": [
                 "api",
                 "v1",
-                "technician-applications",
-                "{{applicationId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Approve Application (Admin)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications/{{applicationId}}/approve",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "technician-applications",
-                "{{applicationId}}",
-                "approve"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Reject Application (Admin)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"rejectionReason\": \"Submitted qualifications do not meet the minimum requirements for this role.\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:5000/api/v1/technician-applications/{{applicationId}}/reject",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "5000",
-              "path": [
-                "api",
-                "v1",
-                "technician-applications",
-                "{{applicationId}}",
-                "reject"
+                "notifications",
+                "{{notificationId}}",
+                "read"
               ]
             }
           },
           "response": []
         }
       ],
-      "description": "Technician onboarding endpoints - technicians apply via form, admins review pending applications and approve (auto-creating the technician account + emailing credentials) or reject."
+      "description": "Notification management endpoints"
     }
   ],
   "variable": [
     {
-      "key": "superAdminAccessToken",
+      "key": "baseUrl",
       "value": ""
     },
     {
-      "key": "adminAccessToken",
+      "key": "host",
       "value": ""
     },
     {
-      "key": "technicianAccessToken",
-      "value": ""
-    },
-    {
-      "key": "customerAccessToken",
-      "value": ""
-    },
-    {
-      "key": "accessToken",
-      "value": ""
-    },
-    {
-      "key": "vendorId",
-      "value": ""
-    },
-    {
-      "key": "workOrderId",
-      "value": ""
-    },
-    {
-      "key": "categoryId",
-      "value": ""
-    },
-    {
-      "key": "technicianId",
-      "value": ""
-    },
-    {
-      "key": "paymentId",
-      "value": ""
-    },
-    {
-      "key": "notificationId",
-      "value": ""
-    },
-    {
-      "key": "userId",
-      "value": ""
-    },
-    {
-      "key": "applicationId",
+      "key": "default",
       "value": ""
     }
   ]

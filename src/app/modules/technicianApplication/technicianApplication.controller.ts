@@ -1,23 +1,25 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import type { RequestUser } from "../../middlewares/checkAuth";
+import { AppError } from "../../utils/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { TechnicianApplicationService } from "./technicianApplication.service";
 
 const applyAsTechnician = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	const files = req.files as
-		| {
-				resume?: Express.Multer.File[];
-				additionalDocuments?: Express.Multer.File[];
-		  }
-		| undefined;
+	const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+	const resume = files?.["resume"] ? files["resume"][0] : null;
+	const additionalDocuments = files?.["additionalDocuments"] || [];
+
+	if (!resume) {
+		throw new AppError(httpStatus.BAD_REQUEST, "Please upload your resume");
+	}
 
 	const result = await TechnicianApplicationService.applyAsTechnician(
 		payload,
-		files?.resume,
-		files?.additionalDocuments,
+		resume,
+		additionalDocuments,
 	);
 
 	sendResponse(res, {

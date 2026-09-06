@@ -44,10 +44,39 @@ const uploadFileToCloudinary = (buffer: Buffer) =>
 			.end(buffer);
 	});
 
+const generateTemporaryPassword = () => {
+	const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const lowerChars = "abcdefghijklmnopqrstuvwxyz";
+	const numberChars = "0123456789";
+	const specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+	const allChars = upperChars + lowerChars + numberChars + specialChars;
+
+	const getRandomChar = (chars: string) =>
+		chars[crypto.randomInt(0, chars.length)];
+
+	const passwordChars = [
+		getRandomChar(upperChars),
+		getRandomChar(lowerChars),
+		getRandomChar(numberChars),
+		getRandomChar(specialChars),
+	];
+
+	for (let i = 0; i < 8; i++) {
+		passwordChars.push(getRandomChar(allChars));
+	}
+
+	for (let i = passwordChars.length - 1; i > 0; i--) {
+		const j = crypto.randomInt(0, i + 1);
+		[passwordChars[i], passwordChars[j]] = [passwordChars[j], passwordChars[i]];
+	}
+
+	return passwordChars.join("");
+};
+
 const applyAsTechnician = async (
 	payload: IApplyAsTechnicianPayload,
-	resume: Express.Multer.File[] | undefined,
-	additionalDocuments: Express.Multer.File[] | undefined,
+	resume: Express.Multer.File | null,
+	additionalDocuments: Express.Multer.File[],
 ) => {
 	const email = payload.email.trim().toLowerCase();
 
@@ -84,15 +113,15 @@ const applyAsTechnician = async (
 	let resumePublicId: string | null =
 		existingApplication?.resumePublicId ?? null;
 
-	if (resume?.[0]?.buffer) {
-		const uploadedResume = await uploadFileToCloudinary(resume[0].buffer);
+	if (resume?.buffer) {
+		const uploadedResume = await uploadFileToCloudinary(resume.buffer);
 		resumeUrl = uploadedResume.secure_url;
 		resumePublicId = uploadedResume.public_id;
 	}
 
-	if (!resumeUrl) {
-		throw new AppError(httpStatus.BAD_REQUEST, "Resume is required");
-	}
+	// if (!resumeUrl) {
+	// 	throw new AppError(httpStatus.BAD_REQUEST, "Resume is required");
+	// }
 
 	let additionalDocumentsUploaded: { url: string; publicId: string }[] =
 		(existingApplication?.additionalDocuments as
@@ -302,7 +331,7 @@ const approveApplication = async (
 		);
 	}
 
-	const tempPassword = crypto.randomBytes(6).toString("base64url");
+	const tempPassword = generateTemporaryPassword();
 
 	const hashedPassword = await bcrypt.hash(
 		tempPassword,

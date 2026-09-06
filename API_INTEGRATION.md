@@ -52,7 +52,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Frontend Component / Screen | Request | Backend Endpoint |
 |-----------------------------|---------|------------------|
 | Create service request form | `POST` | `/work-orders` |
-| My work orders list | `GET` | `/work-orders/:id` (filtered by role) |
+| My work orders (open one of your orders) | `GET` | `/work-orders/:id` |
 | Work order detail page | `GET` | `/work-orders/:id` |
 | Cancel order dialog (PENDING/APPROVED only) | `PATCH` | `/work-orders/:id/status` `{ status: "CANCELLED", cancellationReason, version }` |
 | Feedback form (after completion) | `POST` | `/work-orders/:id/feedback` |
@@ -67,6 +67,8 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Notifications bell / list | `GET` | `/notifications?page=&limit=` |
 | Mark one notification read | `PATCH` | `/notifications/:id/read` |
 | Mark all notifications read | `PATCH` | `/notifications/read-all` |
+
+> **Note:** A customer "my work orders" **list** endpoint does not exist yet — `GET /work-orders` is Admin-only and `GET /work-orders/my-assigned` is Technician-only. Customers currently open each order individually via `GET /work-orders/:id`.
 
 ---
 
@@ -96,7 +98,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Restore user action | `PATCH` | `/admin/users/:id/restore` |
 | Vendor management — create | `POST` | `/vendors` |
 | Vendor management — edit | `PATCH` | `/vendors/:id` |
-| Vendor approval / suspend | `PATCH` | `/vendors/:id` `{ status: "APPROVED" \| "SUSPENDED" }` |
+| Vendor approval / suspend (⚠ not implemented — status not accepted by the endpoint) | `PATCH` | `/vendors/:id` `{ status: "APPROVED" \| "SUSPENDED" }` |
 | Vendor delete | `DELETE` | `/vendors/:id` |
 | Vendor restore | `PATCH` | `/vendors/:id/restore` |
 | Vendor team — add technician | `POST` | `/vendors/:vendorId/members` `{ technicianId }` |
@@ -166,6 +168,6 @@ Frontend "Pay" → POST /payments/initiate → get bkashURL
 ## 9. Concurrency & Data Notes for the Frontend
 
 - **Version field (required on update):** Every `PATCH /work-orders/:id` and `PATCH /work-orders/:id/status` update must send the current `version` from the fetched record. On conflict the API returns `409` — the frontend should re-fetch the record and tell the user "this job was modified by someone else".
-- **Work order status machine:** the frontend must only offer transitions valid for the current status (e.g. a Customer can only cancel `PENDING`/`APPROVED` jobs; payments can only be initiated when the job is `COMPLETED`).
+- **Work order status machine:** the frontend must only offer transitions valid for the current status. Real transitions are: `PENDING → APPROVED | CANCELLED`, `APPROVED → ASSIGNED | CANCELLED`, `ASSIGNED → ACCEPTED | REASSIGNED | CANCELLED`, `ACCEPTED → EN_ROUTE | CANCELLED`, `EN_ROUTE → IN_PROGRESS`, `IN_PROGRESS → COMPLETED | FAILED`. For example, a Customer can only cancel `PENDING`/`APPROVED` jobs; payments can only be initiated when the job is `COMPLETED`.
 - **Refund eligibility:** only payments with status `PAID` can be refunded; `CANCELLED`/`REFUNDED` payments are rejected by the API.
 - **Roles:** tokens are role-scoped. The Admin app should not show Customer-only actions, and vice versa. Role rules are enforced server-side anyway (403 on violation).

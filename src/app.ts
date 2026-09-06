@@ -5,19 +5,21 @@ import express, {
 	type Request,
 	type Response,
 } from "express";
+import helmet from "helmet";
 import httpStatus from "http-status";
 import config from "./app/config";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import { notFound } from "./app/middlewares/notFound";
+import { appLimiter } from "./app/middlewares/rateLimit";
 import { AdminRoutes } from "./app/modules/admin/admin.route";
 import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { NotificationRoutes } from "./app/modules/notification/notification.route";
 import { PaymentRoutes } from "./app/modules/payment/payment.route";
-import { UserRoutes } from "./app/modules/user/user.route";
-import { VendorRoutes } from "./app/modules/vendor/vendor.route";
 import { ServiceCategoryRoutes } from "./app/modules/serviceCategory/serviceCategory.route";
 import { SuperAdminRoutes } from "./app/modules/superAdmin/superAdmin.route";
 import { TechnicianApplicationRoutes } from "./app/modules/technicianApplication/technicianApplication.route";
+import { UserRoutes } from "./app/modules/user/user.route";
+import { VendorRoutes } from "./app/modules/vendor/vendor.route";
 import { WorkOrderRoutes } from "./app/modules/workOrder/workOrder.route";
 import { sendResponse } from "./app/utils/sendResponse";
 
@@ -25,12 +27,18 @@ const API_PREFIX = `/api/${config.field_nexus_api_version}`;
 
 const app: Application = express();
 
+// Security headers
+app.use(helmet());
+
 app.use(
 	cors({
 		origin: config.frontend_url,
 		credentials: true,
 	}),
 );
+
+// API-wide rate limiting to prevent API abuse
+app.use(`${API_PREFIX}`, appLimiter);
 
 // Enable URL-encoded form data parsing
 app.use(express.urlencoded({ extended: true }));
@@ -55,7 +63,8 @@ app.get("/", (req: Request, res: Response) => {
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: "Welcome to the Field Nexus API. The server is running successfully.",
+		message:
+			"Welcome to the Field Nexus API. The server is running successfully.",
 		data: {
 			status: "Healthy",
 			author: config.project_author,

@@ -209,7 +209,7 @@ The easiest way to test is with **Postman**, which lets you:
 A ready‑made **Postman collection** is included in the project:
 
 ```
-Field Nexus (Backend) (V2).postman_collection.json
+FieldNexus_(Backend)(V2).postman_collection.json
 ```
 
 ### How to use the collection
@@ -276,10 +276,11 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 | B1 | `POST /api/v1/auth/register` body `{ name, email, password, contactNumber?, address? }` | None | Registers a Customer; sends an OTP code by email |
 | B2 | `POST /api/v1/auth/verify-email` body `{ email, otp }` | None | Confirms the email; returns access + refresh tokens |
 | B3 | `POST /api/v1/auth/login` body `{ email, password }` | None | Logs in an existing user; returns tokens |
-| B4 | `GET /api/v1/auth/me` | Any role | Shows the logged-in user's own profile |
+| B4 | `GET /api/v1/auth/me` | Admin / Technician / Customer | Shows the logged-in user's own profile |
 | B5 | `POST /api/v1/auth/refresh-token` | None (uses cookie) | Get a new access token when the old one expires |
 | B6 | `POST /api/v1/auth/forgot-password` body `{ email }` | None | Sends password-reset OTP |
 | B7 | `POST /api/v1/auth/reset-password` body `{ email, otp, newPassword }` | None | Sets the new password |
+| B8 | `POST /api/v1/auth/google` body `{ idToken }` | None | Google sign-in/sign-up (creates or links a Customer account, returns tokens) |
 
 > When the Customer registers, the OTP is sent to their email. In development it may also be visible in the Redis/console. OTPs expire in about 5 minutes.
 
@@ -310,7 +311,7 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 | # | Request | Auth | Notes |
 |---|---------|------|-------|
 | F1 | `POST /api/v1/vendors` body `{ name, email, phone?, description?, address?, serviceAreas? }` | Admin | New vendor starts as **PENDING** |
-| F2 | `PATCH /api/v1/vendors/:id` body `{ status: "APPROVED" }` | Admin | Approve the vendor (required before assignment) |
+| F2 | `PATCH /api/v1/vendors/:id` body `{ status: "APPROVED" }` | Admin | **⚠ Note:** the vendor `status` field is not currently wired into the backend — this request runs, but the status does not change. Vendor approval/suspend is pending implementation. |
 | F3 | `GET /api/v1/vendors` | Public | List vendors |
 | F4 | `POST /api/v1/vendors/:vendorId/members` body `{ technicianId }` | Admin | Add a technician to a vendor |
 | F5 | `GET /api/v1/vendors/:vendorId/members` | Admin | See a vendor's technicians |
@@ -345,7 +346,7 @@ Use the **Customer** token for creating orders, the **Admin** token for approvin
 | H9 | `PATCH /api/v1/work-orders/:id/status` body `{ status: "COMPLETED" }` | Technician | Mark done |
 | H10 | `GET /api/v1/work-orders` | Admin | List all jobs (with filters) |
 | H11 | `GET /api/v1/work-orders/my-assigned` | Technician | See only your jobs |
-| H12 | `GET /api/v1/work-orders/:id` | Any role | Get one job's full details |
+| H12 | `GET /api/v1/work-orders/:id` | Admin / Customer / Technician | Get one job's full details |
 | H13 | `PATCH /api/v1/work-orders/:id` body `{ ..., version }` | Admin | Edit a job (uses version/locking) |
 
 > **Important — `version`:** the work order has a version number that increases every time it changes. When you update the status or the order, you must send the current `version` in the body. If two people edit at the same time, the second one gets a **409 Conflict** — this is the system protecting data.
@@ -361,7 +362,7 @@ Use the **Customer** token for creating orders, the **Admin** token for approvin
 | # | Request | Who | Notes |
 |---|---------|-----|-------|
 | I1 | `POST /api/v1/work-orders/:id/feedback` body `{ rating: 1–5, comment? }` | Customer | Only for **COMPLETED** jobs |
-| I2 | `GET /api/v1/work-orders/:id/feedback` | Any role | Read the feedback |
+| I2 | `GET /api/v1/work-orders/:id/feedback` | Admin / Customer / Technician | Read the feedback |
 
 ### Phase J — Payments (bKash)
 
@@ -422,6 +423,8 @@ The backend sends emails automatically at these moments. All are "transactional"
 | Technician applies | The applicant | "Application received" |
 | Technician application approved | The applicant | "Welcome to the team" |
 | Technician application rejected | The applicant | "Application not approved" |
+| Google sign-in enabled | An existing customer | "Google Sign-In Enabled" — sent when they link an existing account to Google sign-in |
+| Google sign-up | A new customer | Welcome email after sign-up via Google |
 
 > The refund and work-order-cancellation confirmation emails were recently added, in `src/app/templates/refund-confirmation.ejs` and `src/app/templates/work-order-cancelled.ejs`.
 
