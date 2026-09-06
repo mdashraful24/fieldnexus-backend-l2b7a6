@@ -7,8 +7,9 @@ import { SuperAdminService } from "./superAdmin.service";
 
 const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
 	const query = req.query;
+	const user = req.user as RequestUser;
 
-	const result = await SuperAdminService.getAllAdmins(query);
+	const result = await SuperAdminService.getAllAdmins(query, user.userId);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

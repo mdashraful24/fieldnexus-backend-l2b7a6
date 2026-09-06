@@ -18,8 +18,9 @@ const getDashboardStats = catchAsync(async (_req: Request, res: Response) => {
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 	const query = req.query;
+	const user = req.user as RequestUser;
 
-	const result = await AdminService.getAllUsers(query);
+	const result = await AdminService.getAllUsers(query, user.userId);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,

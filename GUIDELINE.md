@@ -209,7 +209,7 @@ The easiest way to test is with **Postman**, which lets you:
 A ready‑made **Postman collection** is included in the project:
 
 ```
-FieldNexus_(Backend)(V2).postman_collection.json
+FieldNexus_(Backend)(V1).postman_collection.json
 ```
 
 ### How to use the collection

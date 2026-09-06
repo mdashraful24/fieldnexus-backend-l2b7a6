@@ -29,7 +29,7 @@ const adminSelect = {
 	updatedAt: true,
 } as const;
 
-const getAllAdmins = async (query: IQuery) => {
+const getAllAdmins = async (query: IQuery, currentUserId?: string) => {
 	const limit = query.limit ? Number(query.limit) : 10;
 	const page = query.page ? Number(query.page) : 1;
 	const skip = (page - 1) * limit;
@@ -37,6 +37,10 @@ const getAllAdmins = async (query: IQuery) => {
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
 	const andConditions: UserWhereInput[] = [{ role: { in: adminRoles } }];
+
+	if (currentUserId) {
+		andConditions.push({ id: { not: currentUserId } });
+	}
 
 	if (query.includeDeleted !== "true") {
 		andConditions.push({ isDeleted: false });

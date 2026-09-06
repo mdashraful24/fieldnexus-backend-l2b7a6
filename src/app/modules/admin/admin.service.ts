@@ -151,14 +151,20 @@ const getDashboardStats = async () => {
 	};
 };
 
-const getAllUsers = async (query: IQuery) => {
+const getAllUsers = async (query: IQuery, currentUserId?: string) => {
 	const limit = query.limit ? Number(query.limit) : 10;
 	const page = query.page ? Number(query.page) : 1;
 	const skip = (page - 1) * limit;
 	const sortBy = query.sortBy ? query.sortBy : "createdAt";
 	const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
-	const andConditions: UserWhereInput[] = [];
+	const andConditions: UserWhereInput[] = [
+		{ role: { in: [Role.TECHNICIAN, Role.CUSTOMER] } },
+	];
+
+	if (currentUserId) {
+		andConditions.push({ id: { not: currentUserId } });
+	}
 
 	if (query.includeDeleted !== "true") {
 		andConditions.push({ isDeleted: false });

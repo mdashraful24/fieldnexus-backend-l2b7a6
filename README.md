@@ -166,7 +166,7 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 
 ### Step 5 — Test the API
 
-- Open the included collection in Postman: `FieldNexus_(Backend)(V2).postman_collection.json`
+- Open the included collection in Postman: `FieldNexus_(Backend)(V1).postman_collection.json`
 - Follow the step-by-step test order in **[GUIDELINE.md](GUIDELINE.md)**
 
 ### Available scripts
@@ -204,7 +204,7 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 
 - API Testing Guideline (step-by-step, non-technical friendly): **[GUIDELINE.md](GUIDELINE.md)**
 - Frontend ↔ Backend API Integration Map: **[API_INTEGRATION.md](API_INTEGRATION.md)**
-- Postman Collection: **[FieldNexus_(Backend)(V2).postman_collection.json](FieldNexus_(Backend)(V2).postman_collection.json)**
+- Postman Collection: **[FieldNexus_(Backend)(V1).postman_collection.json](FieldNexus_(Backend)(V1).postman_collection.json)**
 - Project Blueprint / Requirements: **[fieldnexus.md](fieldnexus.md)** , **[assignmentRequirement.md](assignmentRequirement.md)**
 
 > **Live links:** https://fieldnexus-backend.vercel.app
