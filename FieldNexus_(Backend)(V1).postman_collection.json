@@ -66,7 +66,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"fieldnexus.admin@fieldnexus.com\",\n    \"password\": \"NexusAdmin@123\"\n}\n\n// Super Admin:\n// {\n//     \"email\": \"FIELD_NEXUS_SUPER_ADMIN_EMAIL\",\n//     \"password\": \"FIELD_NEXUS_SUPER_ADMIN_PASSWORD\"\n// }\n\n// Customer:\n// {\n//     \"email\": \"islam50-076@diu.edu.bd\",\n//     \"password\": \"NewStr0ng!Pass\"\n// }\n\n// Technician:\n// {\n//     \"email\": \"tester.technician@fieldnexus.com\",\n//     \"password\": \"TesterTechnician@123\"\n// }",
+                  "raw": "{\n    \"email\": \"admin@fieldnexus.com\",\n    \"password\": \"NexusAdmin@123\"\n}\n\n// Super Admin:\n// {\n//     \"email\": \"FIELD_NEXUS_SUPER_ADMIN_EMAIL\",\n//     \"password\": \"FIELD_NEXUS_SUPER_ADMIN_PASSWORD\"\n// }\n\n// Customer:\n// {\n//     \"email\": \"islam50-076@diu.edu.bd\",\n//     \"password\": \"NewStr0ng!Pass\"\n// }\n\n// Technician:\n// {\n//     \"email\": \"tester.technician@fieldnexus.com\",\n//     \"password\": \"TesterTechnician@123\"\n// }",
                   "options": {
                     "raw": {
                       "language": "json"
