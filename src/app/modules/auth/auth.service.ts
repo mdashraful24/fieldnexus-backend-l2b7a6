@@ -562,6 +562,13 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 		throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
 	}
 
+	if (isUserExists.role === Role.ADMIN) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Admin password reset is not allowed. Please contact a super admin.",
+		);
+	}
+
 	if (
 		isUserExists.googleId &&
 		isUserExists.authProvider === AuthProvider.GOOGLE
@@ -629,6 +636,13 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 
 	if (isUserExists.isDeleted || isUserExists.status === UserStatus.DELETED) {
 		throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
+	}
+
+	if (isUserExists.role === Role.ADMIN) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"Admin password reset is not allowed. Please contact a super admin.",
+		);
 	}
 
 	if (

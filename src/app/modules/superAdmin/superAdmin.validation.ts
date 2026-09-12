@@ -32,27 +32,17 @@ const UpdateAdminStatusZodSchema = z.object({
 	}),
 });
 
-const UpdateAdminProfileZodSchema = z
-	.object({
-		name: z
-			.string("Name must be a string")
-			.min(3, "Name must be at least 3 characters long.")
-			.max(50, "Name must not exceed 50 characters.")
-			.optional(),
-		email: z
-			.string("Email must be a string")
-			.email("Not a valid email address")
-			.optional(),
-		password: passwordRegex.optional(),
-		imageUrl: z.string("Image URL must be a string").optional(),
-		role: z.enum(["ADMIN", "SUPER_ADMIN"]).optional(),
-	})
-	.refine((data) => Object.keys(data).length > 0, {
-		message: "At least one field must be provided to update",
-	});
+const ResetAdminPasswordZodSchema = z.object({
+	newPassword: passwordRegex,
+});
+
+const ChangeAdminEmailZodSchema = z.object({
+	newEmail: z.string("Email must be a string").email("Not a valid email address"),
+});
 
 export const superAdminValidation = {
 	CreateAdminZodSchema,
 	UpdateAdminStatusZodSchema,
-	UpdateAdminProfileZodSchema,
+	ResetAdminPasswordZodSchema,
+	ChangeAdminEmailZodSchema,
 };

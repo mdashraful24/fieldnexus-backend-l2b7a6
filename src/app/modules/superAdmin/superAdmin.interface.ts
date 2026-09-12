@@ -14,10 +14,10 @@ export interface IUpdateAdminStatusPayload {
 	status: UserStatus;
 }
 
-export interface IUpdateAdminProfilePayload {
-	name?: string;
-	email?: string;
-	password?: string;
-	imageUrl?: string;
-	role?: AdminRole;
+export interface IResetAdminPasswordPayload {
+	newPassword: string;
+}
+
+export interface IChangeAdminEmailPayload {
+	newEmail: string;
 }

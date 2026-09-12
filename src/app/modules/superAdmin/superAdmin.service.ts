@@ -8,8 +8,9 @@ import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
 import type {
+	IChangeAdminEmailPayload,
 	ICreateAdminPayload,
-	IUpdateAdminProfilePayload,
+	IResetAdminPasswordPayload,
 	IUpdateAdminStatusPayload,
 } from "./superAdmin.interface";
 
@@ -284,9 +285,9 @@ const restoreAdmin = async (
 	return restoredAdmin;
 };
 
-const updateAdminProfile = async (
+const resetAdminPassword = async (
 	adminId: string,
-	payload: IUpdateAdminProfilePayload,
+	payload: IResetAdminPasswordPayload,
 	actor: RequestUser,
 	ipAddress?: string,
 ) => {
@@ -298,87 +299,90 @@ const updateAdminProfile = async (
 		throw new AppError(httpStatus.NOT_FOUND, "Admin not found");
 	}
 
-	if (
-		admin.id === actor.userId &&
-		payload.role &&
-		payload.role !== admin.role
-	) {
+	if (admin.role === Role.SUPER_ADMIN && admin.id !== actor.userId) {
 		throw new AppError(
-			httpStatus.BAD_REQUEST,
-			"You cannot change the role of your own account",
+			httpStatus.FORBIDDEN,
+			"You cannot reset the password of another super admin",
 		);
 	}
 
-	if (admin.role === Role.SUPER_ADMIN && payload.role === Role.ADMIN) {
-		throw new AppError(httpStatus.FORBIDDEN, "You cannot demote a super admin");
-	}
-
-	const data: {
-		name?: string;
-		email?: string;
-		password?: string;
-		imageUrl?: string;
-		role?: Role;
-	} = {};
-
-	if (payload.name) {
-		data.name = payload.name;
-	}
-
-	if (payload.email) {
-		const email = payload.email.trim().toLowerCase();
-
-		const existingUser = await prisma.user.findFirst({
-			where: { email, id: { not: admin.id } },
-		});
-
-		if (existingUser) {
-			throw new AppError(
-				httpStatus.CONFLICT,
-				"User with this email already exists",
-			);
-		}
-
-		data.email = email;
-	}
-
-	if (payload.password) {
-		data.password = await bcrypt.hash(
-			payload.password,
-			Number(config.bcrypt_salt_rounds),
-		);
-	}
-
-	if (payload.imageUrl) {
-		data.imageUrl = payload.imageUrl;
-	}
-
-	if (payload.role) {
-		data.role = payload.role;
-	}
+	const hashedPassword = await bcrypt.hash(
+		payload.newPassword,
+		Number(config.bcrypt_salt_rounds),
+	);
 
 	const updatedAdmin = await prisma.user.update({
 		where: { id: admin.id },
-		data,
+		data: {
+			password: hashedPassword,
+		},
 		select: adminSelect,
 	});
 
 	await prisma.auditLog.create({
 		data: {
-			action: "ADMIN_UPDATED",
+			action: "ADMIN_PASSWORD_RESET",
 			entityType: "User",
 			entityId: admin.id,
 			ipAddress: ipAddress ?? null,
-			oldValue: {
-				name: admin.name,
-				email: admin.email,
-				role: admin.role,
-			},
-			newValue: {
-				name: updatedAdmin.name,
-				email: updatedAdmin.email,
-				role: updatedAdmin.role,
-			},
+			newValue: { email: admin.email, role: admin.role },
+			userId: actor.userId,
+		},
+	});
+
+	return updatedAdmin;
+};
+
+const changeAdminEmail = async (
+	adminId: string,
+	payload: IChangeAdminEmailPayload,
+	actor: RequestUser,
+	ipAddress?: string,
+) => {
+	const admin = await prisma.user.findFirst({
+		where: { id: adminId, isDeleted: false, role: { in: adminRoles } },
+	});
+
+	if (!admin) {
+		throw new AppError(httpStatus.NOT_FOUND, "Admin not found");
+	}
+
+	if (admin.role === Role.SUPER_ADMIN && admin.id !== actor.userId) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"You cannot change the email of another super admin",
+		);
+	}
+
+	const newEmail = payload.newEmail.trim().toLowerCase();
+
+	const existingUser = await prisma.user.findFirst({
+		where: { email: newEmail, id: { not: admin.id } },
+	});
+
+	if (existingUser) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"User with this email already exists",
+		);
+	}
+
+	const updatedAdmin = await prisma.user.update({
+		where: { id: admin.id },
+		data: {
+			email: newEmail,
+		},
+		select: adminSelect,
+	});
+
+	await prisma.auditLog.create({
+		data: {
+			action: "ADMIN_EMAIL_CHANGED",
+			entityType: "User",
+			entityId: admin.id,
+			ipAddress: ipAddress ?? null,
+			oldValue: { email: admin.email },
+			newValue: { email: updatedAdmin.email },
 			userId: actor.userId,
 		},
 	});
@@ -392,5 +396,6 @@ export const SuperAdminService = {
 	createAdmin,
 	updateAdminStatus,
 	restoreAdmin,
-	updateAdminProfile,
+	resetAdminPassword,
+	changeAdminEmail,
 };

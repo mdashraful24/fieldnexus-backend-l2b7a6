@@ -81,12 +81,12 @@ const restoreAdmin = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const updateAdminProfile = catchAsync(async (req: Request, res: Response) => {
+const resetAdminPassword = catchAsync(async (req: Request, res: Response) => {
 	const adminId = req.params.id as string;
 	const payload = req.body;
 	const user = req.user as RequestUser;
 
-	const result = await SuperAdminService.updateAdminProfile(
+	const result = await SuperAdminService.resetAdminPassword(
 		adminId,
 		payload,
 		user,
@@ -96,7 +96,27 @@ const updateAdminProfile = catchAsync(async (req: Request, res: Response) => {
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
-		message: "Admin updated successfully",
+		message: "Admin password reset successfully",
+		data: result,
+	});
+});
+
+const changeAdminEmail = catchAsync(async (req: Request, res: Response) => {
+	const adminId = req.params.id as string;
+	const payload = req.body;
+	const user = req.user as RequestUser;
+
+	const result = await SuperAdminService.changeAdminEmail(
+		adminId,
+		payload,
+		user,
+		req.ip,
+	);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Admin email changed successfully",
 		data: result,
 	});
 });
@@ -107,5 +127,6 @@ export const SuperAdminController = {
 	createAdmin,
 	updateAdminStatus,
 	restoreAdmin,
-	updateAdminProfile,
+	resetAdminPassword,
+	changeAdminEmail,
 };

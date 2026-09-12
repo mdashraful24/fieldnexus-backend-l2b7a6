@@ -40,10 +40,17 @@ router.patch(
 );
 
 router.patch(
-	"/admins/:id",
+	"/admins/:id/reset-password",
 	auth(Role.SUPER_ADMIN),
-	validateRequest(superAdminValidation.UpdateAdminProfileZodSchema),
-	SuperAdminController.updateAdminProfile,
+	validateRequest(superAdminValidation.ResetAdminPasswordZodSchema),
+	SuperAdminController.resetAdminPassword,
+);
+
+router.patch(
+	"/admins/:id/change-email",
+	auth(Role.SUPER_ADMIN),
+	validateRequest(superAdminValidation.ChangeAdminEmailZodSchema),
+	SuperAdminController.changeAdminEmail,
 );
 
 export const SuperAdminRoutes = router;
