@@ -13,8 +13,4 @@ package-lock.json
 pnpm-workspace.yaml
 .vscode
 
-fieldnexus.md
-assignmentRequirement.md
-nextWork.md
-package.json
 .vercel

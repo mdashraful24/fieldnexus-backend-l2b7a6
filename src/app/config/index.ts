@@ -9,7 +9,7 @@ export default {
 	database_url: process.env.DATABASE_URL,
 	bak_url: process.env.APP_URL,
 	frontend_url: process.env.FRONTEND_URL,
-	field_nexus_api_version: process.env.FIELD_NEXUS_API_VERSION || "v1",
+	field_nexus_api_version: process.env.FIELD_NEXUS_API_VERSION,
 	project_author: process.env.FIELD_NEXUS_PROJECT_AUTHOR,
 
 	bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,

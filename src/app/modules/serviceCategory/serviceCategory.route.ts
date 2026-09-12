@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
 	"/",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(serviceCategoryValidation.CreateServiceCategoryZodSchema),
 	ServiceCategoryController.createServiceCategory,
 );
@@ -20,7 +20,7 @@ router.get("/:id", ServiceCategoryController.getServiceCategoryById);
 
 router.patch(
 	"/:id",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(serviceCategoryValidation.UpdateServiceCategoryZodSchema),
 	ServiceCategoryController.updateServiceCategory,
 );
@@ -33,7 +33,7 @@ router.patch(
 
 router.delete(
 	"/:id",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	ServiceCategoryController.deleteServiceCategory,
 );
 

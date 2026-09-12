@@ -31,13 +31,13 @@ router.post(
 
 router.get(
 	"/",
-	auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	PaymentController.getAllPayments,
 );
 
 router.get(
 	"/:paymentId",
-	auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	PaymentController.getPaymentById,
 );
 

@@ -33,11 +33,7 @@ router.post(
 	AuthController.loginUser,
 );
 
-router.get(
-	"/me",
-	auth(Role.ADMIN, Role.TECHNICIAN, Role.CUSTOMER),
-	AuthController.getMe,
-);
+router.get("/me", auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN), AuthController.getMe);
 
 router.post("/refresh-token", authLimiter, AuthController.refreshToken);
 
@@ -56,5 +52,7 @@ router.post(
 	validateRequest(userAuthValidation.ResetPassword),
 	AuthController.resetPassword,
 );
+
+router.post("/logout", AuthController.logout);
 
 export const AuthRoutes = router;

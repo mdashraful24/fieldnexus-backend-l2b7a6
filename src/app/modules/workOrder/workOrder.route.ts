@@ -18,7 +18,7 @@ router.post(
 	WorkOrderController.createWorkOrder,
 );
 
-router.get("/", auth(Role.ADMIN), WorkOrderController.getAllWorkOrders);
+router.get("/", auth(Role.ADMIN, Role.SUPER_ADMIN), WorkOrderController.getAllWorkOrders);
 
 router.get(
 	"/my-assigned",
@@ -28,14 +28,14 @@ router.get(
 
 router.patch(
 	"/:id/status",
-	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(workOrderValidation.UpdateWorkOrderStatusZodSchema),
 	WorkOrderController.updateWorkOrderStatus,
 );
 
 router.post(
 	"/:id/assign",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(assignmentValidation.AssignWorkOrderZodSchema),
 	AssignmentController.assignWorkOrder,
 );
@@ -62,7 +62,7 @@ router.post(
 
 router.get(
 	"/:id/service-report",
-	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	WorkOrderController.getServiceReport,
 );
 
@@ -75,23 +75,23 @@ router.post(
 
 router.get(
 	"/:id/feedback",
-	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	FeedbackController.getFeedback,
 );
 
 router.get(
 	"/:id",
-	auth(Role.ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	WorkOrderController.getWorkOrderById,
 );
 
 router.patch(
 	"/:id",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(workOrderValidation.UpdateWorkOrderZodSchema),
 	WorkOrderController.updateWorkOrder,
 );
 
-router.delete("/:id", auth(Role.ADMIN), WorkOrderController.deleteWorkOrder);
+router.delete("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN), WorkOrderController.deleteWorkOrder);
 
 export const WorkOrderRoutes = router;

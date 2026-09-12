@@ -10,14 +10,14 @@ const router = Router();
 
 router.patch(
 	"/upload-profile-picture",
-	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	upload.single("profilePicture"),
 	UserController.uploadProfilePicture,
 );
 
 router.patch(
 	"/update-user-info",
-	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN),
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(userValidation.UpdateUserProfileZodSchema),
 	UserController.updateUserInfo,
 );

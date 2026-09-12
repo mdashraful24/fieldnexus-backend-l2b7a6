@@ -20,12 +20,12 @@ router.get("/:id", VendorController.getVendorById);
 
 router.patch(
 	"/:id",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(vendorValidation.UpdateVendorZodSchema),
 	VendorController.updateVendor,
 );
 
-router.delete("/:id", auth(Role.ADMIN), VendorController.deleteVendor);
+router.delete("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN), VendorController.deleteVendor);
 
 router.patch(
 	"/:id/restore",
@@ -35,16 +35,16 @@ router.patch(
 
 router.post(
 	"/:vendorId/members",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(vendorValidation.AddVendorMemberZodSchema),
 	VendorController.addMember,
 );
 
-router.get("/:vendorId/members", auth(Role.ADMIN), VendorController.getMembers);
+router.get("/:vendorId/members", auth(Role.ADMIN, Role.SUPER_ADMIN), VendorController.getMembers);
 
 router.delete(
 	"/:vendorId/members/:technicianId",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	VendorController.removeMember,
 );
 
