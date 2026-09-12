@@ -23,7 +23,6 @@ const CreateAdminZodSchema = z.object({
 	email: z.string("Email is required").email("Not a valid email address"),
 	password: passwordRegex,
 	imageUrl: z.string().optional(),
-	role: z.enum(["ADMIN", "SUPER_ADMIN"]).default("ADMIN").optional(),
 });
 
 const UpdateAdminStatusZodSchema = z.object({

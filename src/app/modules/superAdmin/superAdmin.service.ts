@@ -135,7 +135,7 @@ const createAdmin = async (
 			name: payload.name,
 			email,
 			password: hashedPassword,
-			role: payload.role ?? Role.ADMIN,
+			role: Role.ADMIN,
 			status: UserStatus.ACTIVE,
 			emailVerified: true,
 			needPasswordChange: true,

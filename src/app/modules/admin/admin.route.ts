@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middlewares/checkAuth";
-import { validateRequest } from "../../middlewares/validateRequest";
+import { validateRequest, validateRequestParams } from "../../middlewares/validateRequest";
 import { AdminController } from "./admin.controller";
 import { adminValidation } from "./admin.validation";
 
@@ -17,6 +17,13 @@ router.get(
 	"/users",
 	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	AdminController.getAllUsers,
+);
+
+router.get(
+	"/users/:id",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	validateRequestParams(adminValidation.UserIdParamsSchema),
+	AdminController.getUserById,
 );
 
 router.patch(

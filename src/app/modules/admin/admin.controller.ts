@@ -31,6 +31,20 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getUserById = catchAsync(async (req: Request, res: Response) => {
+	const userId = req.params.id as string;
+	const requester = req.user as RequestUser;
+
+	const result = await AdminService.getUserById(userId, requester);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "User profile retrieved successfully",
+		data: result,
+	});
+});
+
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.params.id as string;
 	const payload = req.body;
@@ -95,6 +109,7 @@ const getVendorPerformance = catchAsync(async (req: Request, res: Response) => {
 export const AdminController = {
 	getDashboardStats,
 	getAllUsers,
+	getUserById,
 	updateUserStatus,
 	restoreUser,
 	getAuditLogs,

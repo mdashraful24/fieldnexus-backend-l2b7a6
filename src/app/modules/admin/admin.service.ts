@@ -224,6 +224,30 @@ const getAllUsers = async (query: IQuery, currentUserId?: string) => {
 	};
 };
 
+const getUserById = async (userId: string, requester: RequestUser) => {
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+		include: {
+			customer: true,
+			technician: true,
+		},
+		omit: { password: true },
+	});
+
+	if (!user || user.isDeleted || user.status === UserStatus.DELETED) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	if (requester.role === Role.ADMIN && user.role === Role.SUPER_ADMIN) {
+		throw new AppError(
+			httpStatus.FORBIDDEN,
+			"You cannot view a super admin profile",
+		);
+	}
+
+	return user;
+};
+
 const updateUserStatus = async (
 	userId: string,
 	payload: IUpdateUserStatusPayload,
@@ -471,6 +495,7 @@ const getVendorPerformance = async (vendorId: string) => {
 export const AdminService = {
 	getDashboardStats,
 	getAllUsers,
+	getUserById,
 	updateUserStatus,
 	restoreUser,
 	getAuditLogs,
