@@ -23,6 +23,7 @@ model User {
 
   customer      Customer?
   technician    Technician?
+  admin         Admin?
   notifications Notification[]
   auditLogs     AuditLog[]
 

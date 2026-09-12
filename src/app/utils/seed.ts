@@ -86,7 +86,7 @@ export const seedAdmin = async () => {
 			Number(config.bcrypt_salt_rounds),
 		);
 
-		const superAdmin = await prisma.user.create({
+		const admin = await prisma.user.create({
 			data: {
 				name,
 				email,
@@ -94,9 +94,16 @@ export const seedAdmin = async () => {
 				role: Role.ADMIN,
 				needPasswordChange: false,
 				emailVerified: true,
+				admin: {
+					create: {
+						name,
+						email,
+						contactNumber: "123-456-7890",
+					},
+				},
 			},
 		});
-		console.log("Admin Created : ", superAdmin);
+		console.log("Admin Created : ", admin);
 	} catch (error) {
 		console.log("Error Seeding Admin : ", error);
 
@@ -169,12 +176,10 @@ export const seedTesterTechnician = async () => {
 	}
 };
 
-const TESTER_VENDOR_NAME = "Field Nexus Test Vendor";
-
 export const seedTesterVendor = async () => {
 	try {
 		const existingVendor = await prisma.vendor.findFirst({
-			where: { name: TESTER_VENDOR_NAME, isDeleted: false },
+			where: { name: config.tester_vendor_name, isDeleted: false },
 		});
 
 		if (existingVendor) {
@@ -193,7 +198,7 @@ export const seedTesterVendor = async () => {
 
 		const vendor = await prisma.vendor.create({
 			data: {
-				name: TESTER_VENDOR_NAME,
+				name: config.tester_vendor_name,
 				email: config.tester_technician_email,
 				phone: technician.contactNumber,
 				description: "Test vendor for development and testing purposes.",
