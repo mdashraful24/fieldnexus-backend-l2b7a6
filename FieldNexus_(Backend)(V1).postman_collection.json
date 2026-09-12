@@ -66,7 +66,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"email\": \"admin@fieldnexus.com\",\n    \"password\": \"NexusAdmin@123\"\n}\n\n// Super Admin:\n// {\n//     \"email\": \"FIELD_NEXUS_SUPER_ADMIN_EMAIL\",\n//     \"password\": \"FIELD_NEXUS_SUPER_ADMIN_PASSWORD\"\n// }\n\n// Customer:\n// {\n//     \"email\": \"islam50-076@diu.edu.bd\",\n//     \"password\": \"NewStr0ng!Pass\"\n// }\n\n// Technician:\n// {\n//     \"email\": \"tester.technician@fieldnexus.com\",\n//     \"password\": \"TesterTechnician@123\"\n// }",
+                  "raw": "{\n    \"email\": \"admin@fieldnexus.com\",\n    \"password\": \"NexusAdmin@123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -82,7 +82,8 @@
                     "auth",
                     "login"
                   ]
-                }
+                },
+                "description": "Demo accounts:\n- Admin: admin@fieldnexus.com / NexusAdmin@123\n- Super Admin: FIELD_NEXUS_SUPER_ADMIN_EMAIL / FIELD_NEXUS_SUPER_ADMIN_PASSWORD\n- Customer: islam50-076@diu.edu.bd / NewStr0ng!Pass\n- Technician: tester.technician@fieldnexus.com / TesterTechnician@123"
               },
               "response": []
             },
@@ -146,17 +147,94 @@
                   }
                 },
                 "url": {
-                  "raw": "http://localhost:5000/api/v1/auth/refresh-token",
-                  "protocol": "http",
+                  "raw": "{{baseUrl}}/auth/refresh-token",
                   "host": [
-                    "localhost"
+                    "{{baseUrl}}"
                   ],
-                  "port": "5000",
                   "path": [
-                    "api",
-                    "v1",
                     "auth",
                     "refresh-token"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login as Customer",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\",\n    \"password\": \"NewStr0ng!Pass\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login as Technician",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"tester.technician@fieldnexus.com\",\n    \"password\": \"TesterTechnician@123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/logout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout"
                   ]
                 }
               },
@@ -359,15 +437,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors?page=1&limit=10&sortBy=createdAt&sortOrder=desc&searchTerm=Dhaka",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors"
               ],
               "query": [
@@ -407,15 +481,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}"
               ]
@@ -438,15 +508,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}"
               ]
@@ -460,15 +526,11 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}"
               ]
@@ -482,15 +544,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/restore",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/restore",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}",
                 "restore"
@@ -514,15 +572,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/members",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}",
                 "members"
@@ -537,15 +591,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/members",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}",
                 "members"
@@ -560,15 +610,11 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members/{{technicianId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/members/{{technicianId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}",
                 "members",
@@ -584,15 +630,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/vendors/{{vendorId}}/members/{{technicianId}}/restore",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/members/{{technicianId}}/restore",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "vendors",
                 "{{vendorId}}",
                 "members",
@@ -665,9 +707,9 @@
               ]
             },
             "url": {
-              "raw": "{{$randomBankAccountName}}/technician-applications/apply",
+              "raw": "{{baseUrl}}/technician-applications/apply",
               "host": [
-                "{{$randomBankAccountName}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "technician-applications",
@@ -836,15 +878,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories"
               ]
             }
@@ -857,15 +895,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories?page=1&limit=10",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories"
               ],
               "query": [
@@ -890,15 +924,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories/{{categoryId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories",
                 "{{categoryId}}"
               ]
@@ -921,15 +951,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories/{{categoryId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories",
                 "{{categoryId}}"
               ]
@@ -943,15 +969,11 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories/{{categoryId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories",
                 "{{categoryId}}"
               ]
@@ -965,15 +987,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/service-categories/{{categoryId}}/restore",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/service-categories/{{categoryId}}/restore",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "service-categories",
                 "{{categoryId}}",
                 "restore"
@@ -1003,15 +1021,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders"
               ]
             }
@@ -1024,15 +1038,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}"
               ]
@@ -1046,15 +1056,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders?page=1&limit=10&sortBy=createdAt&sortOrder=desc&status=ASSIGNED&priority=URGENT",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders"
               ],
               "query": [
@@ -1108,15 +1114,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}"
               ]
@@ -1139,15 +1141,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/status",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/status",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "status"
@@ -1162,15 +1160,11 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}"
               ]
@@ -1184,15 +1178,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/my-assigned",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/my-assigned",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "my-assigned"
               ]
@@ -1215,15 +1205,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/assign",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/assign",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "assign"
@@ -1238,15 +1224,11 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/accept",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/accept",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "accept"
@@ -1270,15 +1252,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/reject",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/reject",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "reject"
@@ -1302,15 +1280,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/service-report",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/service-report",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "service-report"
@@ -1325,15 +1299,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/service-report",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/service-report",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "service-report"
@@ -1357,15 +1327,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/feedback",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/feedback",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "feedback"
@@ -1380,15 +1346,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/work-orders/{{workOrderId}}/feedback",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/feedback",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "work-orders",
                 "{{workOrderId}}",
                 "feedback"
@@ -1410,7 +1372,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"workOrderId\": \"73e64edb-aee9-4f08-8548-a743ea49cfad\",\n    \"payerReference\": \"01929918378\"\n}",
+              "raw": "{\n    \"workOrderId\": \"{{workOrderId}}\",\n    \"payerReference\": \"01929918378\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1436,15 +1398,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments/callback?status=success&paymentID=TXN_123456&transaction_status=Completed",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments/callback?status=success&paymentID=TXN_123456&transaction_status=Completed",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments",
                 "callback"
               ],
@@ -1472,15 +1430,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments?page=1&limit=10&status=PAID",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments"
               ],
               "query": [
@@ -1510,15 +1464,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments/{{paymentId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments",
                 "{{paymentId}}"
               ]
@@ -1532,15 +1482,11 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments/{{paymentId}}/cancel",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments/{{paymentId}}/cancel",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments",
                 "{{paymentId}}",
                 "cancel"
@@ -1564,15 +1510,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/payments/{{paymentId}}/refund",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/payments/{{paymentId}}/refund",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "payments",
                 "{{paymentId}}",
                 "refund"
@@ -1645,6 +1587,25 @@
                   "value": "tester",
                   "disabled": true
                 }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
               ]
             }
           },
@@ -1767,7 +1728,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Operations Manager\",\n    \"email\": \"ops.manager@fieldnexus.com\",\n    \"password\": \"OpsManager@123\",\n    \"role\": \"ADMIN\",\n    \"imageUrl\": \"\"\n}",
+              "raw": "{\n    \"name\": \"Operations Manager\",\n    \"email\": \"ops.manager@fieldnexus.com\",\n    \"password\": \"OpsManager@123\",\n    \"imageUrl\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1775,15 +1736,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins"
               ]
@@ -1797,15 +1754,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins?page=1&limit=10&role=ADMIN",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins"
               ],
@@ -1836,15 +1789,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins/{{userId}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins",
                 "{{userId}}"
@@ -1854,13 +1803,13 @@
           "response": []
         },
         {
-          "name": "Update Admin Profile",
+          "name": "Reset Admin Password",
           "request": {
             "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Senior Operations Manager\",\n    \"email\": \"senior.ops@fieldnexus.com\",\n    \"role\": \"ADMIN\"\n}",
+              "raw": "{\n    \"newPassword\": \"NewOpsManager@123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1868,18 +1817,44 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins/{{userId}}/reset-password",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins",
-                "{{userId}}"
+                "{{userId}}",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Admin Email",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"newEmail\": \"senior.ops@fieldnexus.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/super-admin/admins/{{userId}}/change-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "super-admin",
+                "admins",
+                "{{userId}}",
+                "change-email"
               ]
             }
           },
@@ -1900,15 +1875,11 @@
               }
             },
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}/status",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins/{{userId}}/status",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins",
                 "{{userId}}",
@@ -1924,15 +1895,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/super-admin/admins/{{userId}}/restore",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/super-admin/admins/{{userId}}/restore",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "super-admin",
                 "admins",
                 "{{userId}}",
@@ -1954,15 +1921,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/notifications",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/notifications",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "notifications"
               ]
             }
@@ -1975,15 +1938,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/notifications/read-all",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/notifications/read-all",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "notifications",
                 "read-all"
               ]
@@ -1997,15 +1956,11 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/v1/notifications/{{notificationId}}/read",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
-                "api",
-                "v1",
                 "notifications",
                 "{{notificationId}}",
                 "read"
@@ -2020,16 +1975,12 @@
   ],
   "variable": [
     {
-      "key": "baseUrl",
-      "value": ""
-    },
-    {
       "key": "host",
-      "value": ""
+      "value": "http://localhost:5000"
     },
     {
-      "key": "default",
-      "value": ""
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1"
     }
   ]
 }

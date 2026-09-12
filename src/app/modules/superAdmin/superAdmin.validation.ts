@@ -17,10 +17,18 @@ const passwordRegex = z
 
 const CreateAdminZodSchema = z.object({
 	name: z
-		.string("Name is required")
+		.string("Not a valid name")
 		.min(3, "Name must be at least 3 characters long.")
-		.max(50, "Name must not exceed 50 characters."),
-	email: z.string("Email is required").email("Not a valid email address"),
+		.max(10, "Name must not exceed 10 characters."),
+	email: z
+		.string()
+		.email("Not a valid email address"),
+	contactNumber: z
+		.string()
+		.refine((val) => val === "" || /^(?:\+?880|0)1[3-9]\d{8}$/.test(val), {
+			message: "Please enter a valid Bangladeshi number"
+		})
+		.optional(),
 	password: passwordRegex,
 	imageUrl: z.string().optional(),
 });

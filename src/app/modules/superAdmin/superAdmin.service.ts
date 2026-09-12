@@ -28,6 +28,16 @@ const adminSelect = {
 	needPasswordChange: true,
 	createdAt: true,
 	updatedAt: true,
+	admin: {
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			contactNumber: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	},
 } as const;
 
 const getAllAdmins = async (query: IQuery, currentUserId?: string) => {
@@ -140,6 +150,13 @@ const createAdmin = async (
 			emailVerified: true,
 			needPasswordChange: true,
 			imageUrl: payload.imageUrl ?? "",
+			admin: {
+				create: {
+					name: payload.name,
+					email,
+					contactNumber: payload.contactNumber ?? null,
+				},
+			},
 		},
 		select: adminSelect,
 	});

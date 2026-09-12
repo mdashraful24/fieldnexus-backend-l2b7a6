@@ -4,6 +4,7 @@ export interface ICreateAdminPayload {
 	name: string;
 	email: string;
 	password: string;
+	contactNumber?: string;
 	imageUrl?: string;
 }
 
