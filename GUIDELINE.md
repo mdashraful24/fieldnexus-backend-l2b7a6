@@ -275,12 +275,15 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 |---|---------|------|--------------|
 | B1 | `POST /api/v1/auth/register` body `{ name, email, password, contactNumber?, address? }` | None | Registers a Customer; sends an OTP code by email |
 | B2 | `POST /api/v1/auth/verify-email` body `{ email, otp }` | None | Confirms the email; returns access + refresh tokens |
-| B3 | `POST /api/v1/auth/login` body `{ email, password }` | None | Logs in an existing user; returns tokens |
-| B4 | `GET /api/v1/auth/me` | Admin / Technician / Customer | Shows the logged-in user's own profile |
-| B5 | `POST /api/v1/auth/refresh-token` | None (uses cookie) | Get a new access token when the old one expires |
-| B6 | `POST /api/v1/auth/forgot-password` body `{ email }` | None | Sends password-reset OTP |
-| B7 | `POST /api/v1/auth/reset-password` body `{ email, otp, newPassword }` | None | Sets the new password |
-| B8 | `POST /api/v1/auth/google` body `{ idToken }` | None | Google sign-in/sign-up (creates or links a Customer account, returns tokens) |
+| B3 | `POST /api/v1/auth/resend-otp` body `{ email }` | None | Re-sends the registration OTP (only while the registration session is still active) |
+| B4 | `POST /api/v1/auth/login` body `{ email, password }` | None | Logs in an existing user; returns tokens |
+| B5 | `GET /api/v1/auth/me` | Admin / Technician / Customer | Shows the logged-in user's own profile |
+| B6 | `POST /api/v1/auth/refresh-token` | None (uses cookie) | Get a new access token when the old one expires |
+| B7 | `POST /api/v1/auth/forgot-password` body `{ email }` | None | Sends password-reset OTP |
+| B8 | `POST /api/v1/auth/resend-forgot-password-otp` body `{ email }` | None | Re-sends the password-reset OTP (only while the reset session is active) |
+| B9 | `POST /api/v1/auth/reset-password` body `{ email, otp, newPassword }` | None | Sets the new password |
+| B10 | `POST /api/v1/auth/google` body `{ idToken }` | None | Google sign-in/sign-up (creates or links a Customer account, returns tokens) |
+| B11 | `POST /api/v1/auth/logout` | Logged in (uses cookie) | Clears the refresh-token cookie and ends the session |
 
 > When the Customer registers, the OTP is sent to their email. In development it may also be visible in the Redis/console. OTPs expire in about 5 minutes.
 
@@ -303,8 +306,9 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 | # | Request | Auth | Notes |
 |---|---------|------|-------|
 | E1 | `GET /api/v1/admin/users?page=1&limit=10&search=&role=&status=` | Admin | List all users |
-| E2 | `PATCH /api/v1/admin/users/:id/status` body `{ status: "ACTIVE" \| "BLOCKED" \| "DELETED" }` | Admin | Block/delete a user account |
-| E3 | `GET /api/v1/admin/dashboard-stats` | Admin | See totals (users, vendors, jobs, revenue) |
+| E2 | `GET /api/v1/admin/users/:id` | Admin | See one user's full details |
+| E3 | `PATCH /api/v1/admin/users/:id/status` body `{ status: "ACTIVE" \| "BLOCKED" \| "DELETED" }` | Admin | Block/delete a user account |
+| E4 | `GET /api/v1/admin/dashboard-stats` | Admin | See totals (users, vendors, jobs, revenue) |
 
 ### Phase F — Vendors
 
@@ -394,7 +398,11 @@ Use the **Customer** token for creating orders, the **Admin** token for approvin
 |---|---------|-------|
 | L1 | `GET /api/v1/super-admin/admins` | List all Admins |
 | L2 | `POST /api/v1/super-admin/admins` body `{ name, email, password, ... }` | Create a new Admin |
-| L3 | `PATCH /api/v1/super-admin/admins/:id/status` body `{ status: "ACTIVE" \| "BLOCKED" \| "DELETED" }` | Block/delete an Admin |
+| L3 | `GET /api/v1/super-admin/admins/:id` | See one Admin's full details |
+| L4 | `PATCH /api/v1/super-admin/admins/:id/status` body `{ status: "ACTIVE" \| "BLOCKED" \| "DELETED" }` | Block/delete an Admin |
+| L5 | `PATCH /api/v1/super-admin/admins/:id/reset-password` body `{ newPassword }` | Force a new password; the Admin must change it on next login (`needPasswordChange`) |
+| L6 | `PATCH /api/v1/super-admin/admins/:id/change-email` body `{ newEmail }` | Change an Admin's email (must be unique) |
+| L7 | `PATCH /api/v1/super-admin/admins/:id/restore` | Restore a soft-deleted Admin |
 
 ### Phase M — Clean-up & Advanced
 

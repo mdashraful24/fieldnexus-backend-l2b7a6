@@ -32,9 +32,10 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 ## Main Features
 
 **Authentication & Users**
-- Customer registration with email OTP verification
+- Customer registration with email OTP verification (with resend-OTP support)
 - Login (password + Google OAuth), refresh tokens, httpOnly cookies
-- Forgot / reset password flows
+- Forgot / reset password flows (with resend-OTP support)
+- Logout / session end (clears refresh-token cookie)
 - Role-based access control: **Super Admin**, **Admin**, **Technician**, **Customer**
 - Profile management + Cloudinary profile picture upload
 
@@ -65,7 +66,7 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 - In-app notifications (unread / read / read-all)
 - Admin dashboard statistics (users, vendors, work orders, revenue)
 - User management (block / delete / restore) and audit-log endpoint
-- Super Admin module to create and manage Admins
+- Super Admin module to create and manage Admins (list, get by id, block/delete/restore, force password reset, change email)
 
 **Service Categories**
 - Nested service categories with create / update / delete / restore

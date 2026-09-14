@@ -17,11 +17,14 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Auth Layout (token check, user session) | `GET` | `/auth/me` |
 | Register form (Customer sign-up) | `POST` | `/auth/register` |
 | Email verification screen (enter OTP) | `POST` | `/auth/verify-email` |
+| Resend registration OTP button | `POST` | `/auth/resend-otp` `{ email }` |
 | Login form | `POST` | `/auth/login` |
 | Google sign-in button | `POST` | `/auth/google` |
 | Session auto-refresh (interceptor) | `POST` | `/auth/refresh-token` |
 | Forgot password form | `POST` | `/auth/forgot-password` |
+| Resend forgot-password OTP button | `POST` | `/auth/resend-forgot-password-otp` `{ email }` |
 | Reset password form | `POST` | `/auth/reset-password` |
+| Logout button | `POST` | `/auth/logout` |
 
 ---
 
@@ -94,6 +97,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 |-----------------------------|---------|------------------|
 | Dashboard (KPIs: users, vendors, jobs, revenue) | `GET` | `/admin/dashboard-stats` |
 | User management table | `GET` | `/admin/users?page=&limit=&search=&role=&status=` |
+| User detail view | `GET` | `/admin/users/:id` |
 | Block / delete user dialog | `PATCH` | `/admin/users/:id/status` `{ status }` |
 | Restore user action | `PATCH` | `/admin/users/:id/restore` |
 | Vendor management — create | `POST` | `/vendors` |
@@ -135,8 +139,9 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 |-----------------------------|---------|------------------|
 | Admins list | `GET` | `/super-admin/admins` |
 | Create admin form | `POST` | `/super-admin/admins` |
-| Admin detail | `GET` | `/super-admin/admins/:id` |
-| Edit admin profile | `PATCH` | `/super-admin/admins/:id` |
+| Admin detail view | `GET` | `/super-admin/admins/:id` |
+| Reset admin password | `PATCH` | `/super-admin/admins/:id/reset-password` `{ newPassword }` |
+| Change admin email | `PATCH` | `/super-admin/admins/:id/change-email` `{ newEmail }` |
 | Block / delete admin | `PATCH` | `/super-admin/admins/:id/status` `{ status }` |
 | Restore admin | `PATCH` | `/super-admin/admins/:id/restore` |
 | Restore deleted users | `PATCH` | `/admin/users/:id/restore` |

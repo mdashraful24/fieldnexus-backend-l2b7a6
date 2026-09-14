@@ -115,6 +115,34 @@
               "response": []
             },
             {
+              "name": "Resend Registration OTP",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/resend-otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "resend-otp"
+                  ]
+                },
+                "description": "Re-sends the 6-digit registration OTP. Only works while the registration session is still active (it also extends the session)."
+              },
+              "response": []
+            },
+            {
               "name": "Get Me",
               "request": {
                 "method": "GET",
@@ -303,6 +331,34 @@
                     "forgot-password"
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Resend Forgot Password OTP",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"islam50-076@diu.edu.bd\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/resend-forgot-password-otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "resend-forgot-password-otp"
+                  ]
+                },
+                "description": "Re-sends the password-reset OTP. Only works while the reset session is still active."
               },
               "response": []
             },
