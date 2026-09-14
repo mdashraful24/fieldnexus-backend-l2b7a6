@@ -5,7 +5,7 @@ import path from "path";
 import PDFDocument from "pdfkit";
 import "pdfkit/standard-fonts/Helvetica";
 import "pdfkit/standard-fonts/HelveticaBold";
-import { Prisma } from "../../../generated/prisma/client";
+import type { Prisma } from "../../../generated/prisma/client";
 import {
 	NotificationType,
 	PaymentStatus,
@@ -70,7 +70,8 @@ const sendPaymentInvoiceEmail = async (
 	const paidAt =
 		rawPaidAt && !Number.isNaN(new Date(rawPaidAt).getTime())
 			? new Date(rawPaidAt)
-			: rawPaidAt && !Number.isNaN(new Date(normalizeBkashDate(rawPaidAt)).getTime())
+			: rawPaidAt &&
+					!Number.isNaN(new Date(normalizeBkashDate(rawPaidAt)).getTime())
 				? new Date(normalizeBkashDate(rawPaidAt))
 				: new Date();
 	const formattedDate = format(paidAt, "dd MMMM yyyy");
@@ -427,7 +428,7 @@ const initiatePayment = async (
 	payload: IInitiatePaymentPayload,
 	user: RequestUser,
 ) => {
-	const transactionResult = await prisma.$transaction(async(tx)=>{
+	const transactionResult = await prisma.$transaction(async (tx) => {
 		const customer = await tx.customer.findUnique({
 			where: { userId: user.userId, isDeleted: false },
 			include: { user: { select: { email: true } } },
@@ -552,105 +553,115 @@ const initiatePayment = async (
 };
 
 const handlePaymentCallback = async (query: Record<string, unknown>) => {
-	const transactionResult = await prisma.$transaction(async(tx)=>{
-		const paymentId = query.paymentID as string | undefined;
-		const status = query.status as string | undefined;
+	const transactionResult = await prisma.$transaction(
+		async (tx) => {
+			const paymentId = query.paymentID as string | undefined;
+			const status = query.status as string | undefined;
 
-		if (!paymentId) {
-			throw new AppError(httpStatus.BAD_REQUEST, "Payment id missing");
-		}
+			if (!paymentId) {
+				throw new AppError(httpStatus.BAD_REQUEST, "Payment id missing");
+			}
 
-		if (!status) {
-			throw new AppError(httpStatus.BAD_REQUEST, "Payment status is missing");
-		}
+			if (!status) {
+				throw new AppError(httpStatus.BAD_REQUEST, "Payment status is missing");
+			}
 
-		const bkashIdToken = await getBkashIdToken();
+			const bkashIdToken = await getBkashIdToken();
 
-		if (!bkashIdToken) {
-			throw new AppError(httpStatus.BAD_REQUEST, "No bKash access token found");
-		}
+			if (!bkashIdToken) {
+				throw new AppError(
+					httpStatus.BAD_REQUEST,
+					"No bKash access token found",
+				);
+			}
 
-		const executePaymentResponse = await fetch(
-			`${config.bkash_base_url}/tokenized/checkout/execute`,
-			{
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: bkashIdToken,
-					"X-App-Key": config.bkash_app_key,
+			const executePaymentResponse = await fetch(
+				`${config.bkash_base_url}/tokenized/checkout/execute`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
+						Authorization: bkashIdToken,
+						"X-App-Key": config.bkash_app_key,
+					},
+					body: JSON.stringify({ paymentID: paymentId }),
 				},
-				body: JSON.stringify({ paymentID: paymentId }),
-			},
-		);
+			);
 
-		const executedPaymentResult = await executePaymentResponse.json();
+			const executedPaymentResult = await executePaymentResponse.json();
 
-		const payment = await tx.payment.findFirst({
-			where: { bkashPaymentId: paymentId },
-			include: { customer: { select: { userId: true } } },
-		});
-
-		if (!payment) {
-			throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
-		}
-
-		if (status === "success") {
-			await tx.payment.update({
-				where: { id: payment.id },
-				data: {
-					status: PaymentStatus.PAID,
-					bkashTrxId: executedPaymentResult.trxID,
-					paidAt: executedPaymentResult.paymentExecuteTime,
-				},
+			const payment = await tx.payment.findFirst({
+				where: { bkashPaymentId: paymentId },
+				include: { customer: { select: { userId: true } } },
 			});
 
-			await tx.notification.create({
-				data: {
-					userId: payment.customer.userId,
-					type: NotificationType.PAYMENT_SUCCESS,
-					message: `Payment of ${payment.amount} BDT for your work order was successful.`,
-				},
-			});
+			if (!payment) {
+				throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+			}
 
-			await sendPaymentInvoiceEmail(payment.id, executedPaymentResult.trxID, tx);
+			if (status === "success") {
+				await tx.payment.update({
+					where: { id: payment.id },
+					data: {
+						status: PaymentStatus.PAID,
+						bkashTrxId: executedPaymentResult.trxID,
+						paidAt: executedPaymentResult.paymentExecuteTime,
+					},
+				});
 
-			return {
-				redirectUrl: `${config.frontend_url}?payment=success`,
-			};
-		} else if (status === "failure") {
-			await tx.payment.update({
-				where: { id: payment.id },
-				data: {
-					status: PaymentStatus.FAILED,
-					gatewayResponse: executedPaymentResult,
-				},
-			});
+				await tx.notification.create({
+					data: {
+						userId: payment.customer.userId,
+						type: NotificationType.PAYMENT_SUCCESS,
+						message: `Payment of ${payment.amount} BDT for your work order was successful.`,
+					},
+				});
 
-			return {
-				redirectUrl: `${config.frontend_url}?payment=failure`,
-			};
-		} else if (status === "cancel") {
-			await tx.payment.update({
-				where: { id: payment.id },
-				data: {
-					status: PaymentStatus.CANCELLED,
-					gatewayResponse: executedPaymentResult,
-				},
-			});
+				await sendPaymentInvoiceEmail(
+					payment.id,
+					executedPaymentResult.trxID,
+					tx,
+				);
 
-			return {
-				redirectUrl: `${config.frontend_url}?payment=cancel`,
-			};
-		} else {
-			return {
-				redirectUrl: `${config.frontend_url}?payment=error`,
-			};
-		}
-	}, {
-		maxWait: 10000,
-		timeout: 30000,
-	});
+				return {
+					redirectUrl: `${config.frontend_url}?payment=success`,
+				};
+			} else if (status === "failure") {
+				await tx.payment.update({
+					where: { id: payment.id },
+					data: {
+						status: PaymentStatus.FAILED,
+						gatewayResponse: executedPaymentResult,
+					},
+				});
+
+				return {
+					redirectUrl: `${config.frontend_url}?payment=failure`,
+				};
+			} else if (status === "cancel") {
+				await tx.payment.update({
+					where: { id: payment.id },
+					data: {
+						status: PaymentStatus.CANCELLED,
+						gatewayResponse: executedPaymentResult,
+					},
+				});
+
+				return {
+					redirectUrl: `${config.frontend_url}?payment=cancel`,
+				};
+			} else {
+				return {
+					redirectUrl: `${config.frontend_url}?payment=error`,
+				};
+			}
+		},
+		{
+			maxWait: 10000,
+			timeout: 30000,
+		},
+	);
 
 	return transactionResult;
 };
@@ -671,10 +682,10 @@ const getPaymentById = async (paymentId: string, user: RequestUser) => {
 				select: { id: true, name: true, email: true },
 			},
 		},
-		omit:{
+		omit: {
 			payUrl: true,
 			gatewayResponse: true,
-		}
+		},
 	});
 
 	if (!payment) {
@@ -797,10 +808,10 @@ const getAllPayments = async (query: IQuery, user: RequestUser) => {
 				select: { id: true, name: true, email: true },
 			},
 		},
-		omit:{
+		omit: {
 			payUrl: true,
 			gatewayResponse: true,
-		}
+		},
 	});
 
 	const totalPayments = await prisma.payment.count({
@@ -1005,7 +1016,7 @@ const refundPayment = async (
 		throw new AppError(
 			httpStatus.BAD_REQUEST,
 			bkashRefundPaymentResult.statusMessage ??
-			"Failed to refund bKash payment",
+				"Failed to refund bKash payment",
 		);
 	}
 

@@ -149,7 +149,11 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		html,
 	});
 
-	return { expiresIn: otpExpirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: registrationSessionExpirationInSeconds };
+	return {
+		expiresIn: otpExpirationInSeconds,
+		expiresAt: otpExpiresAt,
+		sessionExpiresIn: registrationSessionExpirationInSeconds,
+	};
 };
 
 const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
@@ -177,7 +181,8 @@ const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
 		);
 	}
 
-	const customerPayload: IRegisterCustomerPayload = JSON.parse(redisCustomerData);
+	const customerPayload: IRegisterCustomerPayload =
+		JSON.parse(redisCustomerData);
 
 	const otpKey = `customer-registration-otp:${email}`;
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
@@ -202,7 +207,10 @@ const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
 
 	// Refresh the pending registration session so the user can keep
 	// resending a fresh OTP within the 5 minute session window.
-	await redisClient.expire(customerRegistrationKey, registrationSessionExpirationInSeconds);
+	await redisClient.expire(
+		customerRegistrationKey,
+		registrationSessionExpirationInSeconds,
+	);
 
 	const templatePath = path.join(
 		process.cwd(),
@@ -225,7 +233,11 @@ const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
 		html,
 	});
 
-	return { expiresIn: otpExpirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: registrationSessionExpirationInSeconds };
+	return {
+		expiresIn: otpExpirationInSeconds,
+		expiresAt: otpExpiresAt,
+		sessionExpiresIn: registrationSessionExpirationInSeconds,
+	};
 };
 
 const verifyCustomerEmail = async (payload: IVerifyEmailPayload) => {

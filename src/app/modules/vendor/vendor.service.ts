@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
-import { VendorWhereInput } from "../../../generated/prisma/models";
-import { IQuery } from "../../interfaces";
+import type { VendorWhereInput } from "../../../generated/prisma/models";
+import type { IQuery } from "../../interfaces";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
@@ -123,6 +123,7 @@ const getVendorById = async (vendorId: string) => {
 							contactNumber: true,
 							qualifications: true,
 							experienceYears: true,
+							skills: true,
 						},
 					},
 				},
@@ -348,6 +349,7 @@ const getMembers = async (vendorId: string) => {
 					contactNumber: true,
 					qualifications: true,
 					experienceYears: true,
+					skills: true,
 				},
 			},
 		},

@@ -20,13 +20,11 @@ const CreateAdminZodSchema = z.object({
 		.string("Not a valid name")
 		.min(3, "Name must be at least 3 characters long.")
 		.max(10, "Name must not exceed 10 characters."),
-	email: z
-		.string()
-		.email("Not a valid email address"),
+	email: z.string().email("Not a valid email address"),
 	contactNumber: z
 		.string()
 		.refine((val) => val === "" || /^(?:\+?880|0)1[3-9]\d{8}$/.test(val), {
-			message: "Please enter a valid Bangladeshi number"
+			message: "Please enter a valid Bangladeshi number",
 		})
 		.optional(),
 	password: passwordRegex,
@@ -44,7 +42,9 @@ const ResetAdminPasswordZodSchema = z.object({
 });
 
 const ChangeAdminEmailZodSchema = z.object({
-	newEmail: z.string("Email must be a string").email("Not a valid email address"),
+	newEmail: z
+		.string("Email must be a string")
+		.email("Not a valid email address"),
 });
 
 export const superAdminValidation = {

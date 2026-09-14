@@ -5,6 +5,7 @@ export interface IApplyAsTechnicianPayload {
 	address?: string;
 	qualifications: string;
 	experienceYears: number;
+	skills?: string[];
 	bio?: string;
 }
 

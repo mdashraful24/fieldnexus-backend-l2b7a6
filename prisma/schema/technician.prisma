@@ -5,6 +5,7 @@ model Technician {
   email   String  @unique
   address String?
 
+  skills          String[] @default([])
   qualifications  String
   experienceYears Int
 

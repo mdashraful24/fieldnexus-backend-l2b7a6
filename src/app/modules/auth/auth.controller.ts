@@ -40,18 +40,20 @@ const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const resendRegistrationOtp = catchAsync(async (req: Request, res: Response) => {
-	const payload = req.body;
+const resendRegistrationOtp = catchAsync(
+	async (req: Request, res: Response) => {
+		const payload = req.body;
 
-	const result = await AuthService.resendRegistrationOtp(payload);
+		const result = await AuthService.resendRegistrationOtp(payload);
 
-	sendResponse(res, {
-		statusCode: httpStatus.OK,
-		success: true,
-		message: "A new verification OTP has been sent to your email.",
-		data: result,
-	});
-});
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: "A new verification OTP has been sent to your email.",
+			data: result,
+		});
+	},
+);
 
 const verifyCustomerEmail = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
@@ -163,7 +165,8 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-const resendForgotPasswordOtp = catchAsync(async (req: Request, res: Response) => {
+const resendForgotPasswordOtp = catchAsync(
+	async (req: Request, res: Response) => {
 		const payload = req.body;
 
 		const result = await AuthService.resendForgotPasswordOtp(payload);

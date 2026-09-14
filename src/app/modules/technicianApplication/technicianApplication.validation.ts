@@ -37,6 +37,17 @@ const ApplyTechnicianApplicationZodSchema = z.object({
 		.min(0, "Experience years cannot be negative")
 		.max(70, "Experience years must not exceed 70"),
 
+	skills: z
+		.array(
+			z
+				.string()
+				.trim()
+				.min(1, "Skill cannot be empty")
+				.max(100, "Each skill must not exceed 100 characters"),
+		)
+		.max(50, "Skills must not exceed 50 entries")
+		.optional(),
+
 	bio: z
 		.string()
 		.trim()

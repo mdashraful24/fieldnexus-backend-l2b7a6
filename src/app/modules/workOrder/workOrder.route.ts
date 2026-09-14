@@ -18,7 +18,11 @@ router.post(
 	WorkOrderController.createWorkOrder,
 );
 
-router.get("/", auth(Role.ADMIN, Role.SUPER_ADMIN), WorkOrderController.getAllWorkOrders);
+router.get(
+	"/",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	WorkOrderController.getAllWorkOrders,
+);
 
 router.get(
 	"/my-assigned",
@@ -92,6 +96,10 @@ router.patch(
 	WorkOrderController.updateWorkOrder,
 );
 
-router.delete("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN), WorkOrderController.deleteWorkOrder);
+router.delete(
+	"/:id",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	WorkOrderController.deleteWorkOrder,
+);
 
 export const WorkOrderRoutes = router;

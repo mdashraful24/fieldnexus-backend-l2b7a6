@@ -25,7 +25,11 @@ router.patch(
 	VendorController.updateVendor,
 );
 
-router.delete("/:id", auth(Role.ADMIN, Role.SUPER_ADMIN), VendorController.deleteVendor);
+router.delete(
+	"/:id",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	VendorController.deleteVendor,
+);
 
 router.patch(
 	"/:id/restore",
@@ -40,7 +44,11 @@ router.post(
 	VendorController.addMember,
 );
 
-router.get("/:vendorId/members", auth(Role.ADMIN, Role.SUPER_ADMIN), VendorController.getMembers);
+router.get(
+	"/:vendorId/members",
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
+	VendorController.getMembers,
+);
 
 router.delete(
 	"/:vendorId/members/:technicianId",

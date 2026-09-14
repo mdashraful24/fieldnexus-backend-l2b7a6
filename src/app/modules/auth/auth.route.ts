@@ -40,7 +40,11 @@ router.post(
 	AuthController.loginUser,
 );
 
-router.get("/me", auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN), AuthController.getMe);
+router.get(
+	"/me",
+	auth(Role.CUSTOMER, Role.TECHNICIAN, Role.ADMIN, Role.SUPER_ADMIN),
+	AuthController.getMe,
+);
 
 router.post("/refresh-token", authLimiter, AuthController.refreshToken);
 

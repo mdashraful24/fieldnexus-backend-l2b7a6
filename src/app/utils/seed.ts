@@ -160,6 +160,7 @@ export const seedTesterTechnician = async () => {
 						contactNumber: "123-456-7890",
 						qualifications: "HSC",
 						experienceYears: 5,
+						skills: ["Plumbing", "Electrical"],
 					},
 				},
 			},

@@ -6,6 +6,7 @@ model TechnicianApplication {
   contactNumber String?
   address       String?
 
+  skills          String[] @default([])
   qualifications  String
   experienceYears Int
   bio             String?
