@@ -46,6 +46,10 @@ const EmailVerificationZodSchema = z.object({
 	otp: z.string().length(6, { message: "OTP must be 6 digits long" }),
 });
 
+const ResendRegistrationOtpZodSchema = z.object({
+	email: z.string().email("Not a valid email address"),
+});
+
 const UserLoginZodSchema = z.object({
 	email: z.string().email("Not a valid email address"),
 	password: z
@@ -90,6 +94,7 @@ const ResetPassword = z.object({
 export const userAuthValidation = {
 	RegistrationZodSchema,
 	EmailVerificationZodSchema,
+	ResendRegistrationOtpZodSchema,
 	UserLoginZodSchema,
 	ForgotPassword,
 	ResetPassword,

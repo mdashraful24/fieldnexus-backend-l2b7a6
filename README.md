@@ -126,8 +126,8 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 ### Step 1 — Clone & install
 
 ```bash
-git clone <your-repo-url> fieldnexus-backend
-cd fieldnexus-backend
+git clone <your-repo-url> field-nexus-backend
+cd field-nexus-backend
 npm install
 ```
 

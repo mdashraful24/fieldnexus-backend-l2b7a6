@@ -12,18 +12,16 @@ const setAuthCookies = (
 	accessToken: string,
 	refreshToken: string,
 ) => {
-	const isProduction = config.node_env === "production";
-
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
-		secure: isProduction,
-		sameSite: isProduction ? "none" : "lax",
+		secure: config.node_env !== "development",
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
-		secure: isProduction,
-		sameSite: isProduction ? "none" : "lax",
+		secure: config.node_env !== "development",
+		sameSite: config.node_env === "development" ? "lax" : "none",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 };
@@ -39,6 +37,19 @@ const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 		message:
 			"Verification OTP sent to your email. Please verify your email to complete the registration process.",
 		data: null,
+	});
+});
+
+const resendRegistrationOtp = catchAsync(async (req: Request, res: Response) => {
+	const payload = req.body;
+
+	const result = await AuthService.resendRegistrationOtp(payload);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "A new verification OTP has been sent to your email.",
+		data: result,
 	});
 });
 
@@ -152,6 +163,20 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const resendForgotPasswordOtp = catchAsync(async (req: Request, res: Response) => {
+		const payload = req.body;
+
+		const result = await AuthService.resendForgotPasswordOtp(payload);
+
+		sendResponse(res, {
+			statusCode: httpStatus.OK,
+			success: true,
+			message: `A new OTP has been sent to your email ${payload.email}`,
+			data: result,
+		});
+	},
+);
+
 const resetPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
@@ -180,11 +205,13 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 export const AuthController = {
 	registerCustomer,
 	verifyCustomerEmail,
+	resendRegistrationOtp,
 	loginUser,
 	getMe,
 	refreshToken,
 	googleLogin,
 	forgotPassword,
 	resetPassword,
+	resendForgotPasswordOtp,
 	logout,
 };

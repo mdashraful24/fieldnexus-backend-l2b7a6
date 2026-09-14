@@ -23,6 +23,7 @@ import type {
 	ILoginUserPayload,
 	IRegisterCustomerPayload,
 	IRequestUser,
+	IResendOtpPayload,
 	IResetPasswordPayload,
 	IVerifyEmailPayload,
 } from "./auth.interface";
@@ -102,6 +103,82 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		subject: "Verify Your Email - Field Nexus",
 		html,
 	});
+};
+
+const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
+	const email = payload.email.trim().toLowerCase();
+
+	const isUserExists = await prisma.user.findUnique({
+		where: { email },
+	});
+
+	if (isUserExists) {
+		throw new AppError(
+			httpStatus.CONFLICT,
+			"User with this email already exists",
+		);
+	}
+
+	const customerRegistrationKey = `customer-registration-data:${email}`;
+
+	const redisCustomerData = await redisClient.get(customerRegistrationKey);
+
+	if (!redisCustomerData) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Registration session has expired. Please register again.",
+		);
+	}
+
+	const customerPayload: IRegisterCustomerPayload = JSON.parse(redisCustomerData);
+
+	const otpKey = `customer-registration-otp:${email}`;
+	const otpValue = crypto.randomInt(100000, 1000000).toString();
+
+	const otpExpirationInSeconds = 2 * 60;
+	const registrationSessionExpirationInSeconds = 5 * 60;
+	const otpExpiresAt = new Date(
+		Date.now() + otpExpirationInSeconds * 1000,
+	).toISOString();
+
+	//! This condition is added for development purpose only.
+	if (config.node_env === "development") {
+		console.log(`[dev] OTP ${email} : ${otpValue}`);
+	}
+
+	await redisClient.set(otpKey, otpValue, {
+		expiration: {
+			type: "EX",
+			value: otpExpirationInSeconds,
+		},
+	});
+
+	// Refresh the pending registration session so the user can keep
+	// resending a fresh OTP within the 5 minute session window.
+	await redisClient.expire(customerRegistrationKey, registrationSessionExpirationInSeconds);
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/registration-otp.ejs",
+	);
+
+	const templateData = {
+		name: customerPayload.name,
+		email,
+		otp: otpValue,
+		expirationInMinutes: otpExpirationInSeconds / 60,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: config.email_sender,
+		to: email,
+		subject: "Verify Your Email - Field Nexus",
+		html,
+	});
+
+	return { expiresIn: otpExpirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: registrationSessionExpirationInSeconds };
 };
 
 const verifyCustomerEmail = async (payload: IVerifyEmailPayload) => {
@@ -613,6 +690,89 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 	});
 };
 
+const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
+	const { email } = payload;
+	const isUserExists = await prisma.user.findUnique({
+		where: { email },
+	});
+
+	if (!isUserExists) {
+		throw new AppError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	if (isUserExists.status === UserStatus.BLOCKED) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
+	}
+
+	if (!isUserExists.emailVerified) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"Your email is not verified. Please verify your email.",
+		);
+	}
+
+	if (isUserExists.isDeleted || isUserExists.status === UserStatus.DELETED) {
+		throw new AppError(httpStatus.FORBIDDEN, "User is deleted");
+	}
+
+	if (
+		isUserExists.googleId &&
+		isUserExists.authProvider === AuthProvider.GOOGLE
+	) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"User is registered with Google. Please try to login using Google.",
+		);
+	}
+
+	const key = `forgot-password:${isUserExists.email}`;
+
+	const existingOtp = await redisClient.get(key);
+
+	if (!existingOtp) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			"No active password reset session. Please request a password reset first.",
+		);
+	}
+
+	const otp = crypto.randomInt(100000, 1000000).toString();
+
+	const expirationInSeconds = 5 * 60;
+	const otpExpiresAt = new Date(
+		Date.now() + expirationInSeconds * 1000,
+	).toISOString();
+
+	await redisClient.set(key, otp, {
+		expiration: {
+			type: "EX",
+			value: expirationInSeconds,
+		},
+	});
+
+	const templatePath = path.join(
+		process.cwd(),
+		"src/app/templates/forgot-password.ejs",
+	);
+
+	const templateData = {
+		name: isUserExists.name,
+		otp,
+		expirationInMinutes: expirationInSeconds / 60,
+	};
+
+	const html = await ejs.renderFile(templatePath, templateData);
+
+	await transporter.sendMail({
+		from: config.email_sender,
+		to: isUserExists.email,
+		subject: "Password Reset OTP - Field Nexus",
+		html,
+	});
+
+	return { expiresIn: expirationInSeconds, expiresAt: otpExpiresAt };
+};
+
 const resetPassword = async (payload: IResetPasswordPayload) => {
 	const { email, otp, newPassword } = payload;
 	const isUserExists = await prisma.user.findUnique({
@@ -706,10 +866,12 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 export const AuthService = {
 	registerCustomer,
 	verifyCustomerEmail,
+	resendRegistrationOtp,
 	loginUser,
 	getMe,
 	refreshToken,
 	googleLogin,
 	forgotPassword,
+	resendForgotPasswordOtp,
 	resetPassword,
 };

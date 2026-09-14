@@ -27,6 +27,13 @@ router.post(
 );
 
 router.post(
+	"/resend-otp",
+	otpLimiter,
+	validateRequest(userAuthValidation.ResendRegistrationOtpZodSchema),
+	AuthController.resendRegistrationOtp,
+);
+
+router.post(
 	"/login",
 	loginLimiter,
 	validateRequest(userAuthValidation.UserLoginZodSchema),
@@ -44,6 +51,13 @@ router.post(
 	authLimiter,
 	validateRequest(userAuthValidation.ForgotPassword),
 	AuthController.forgotPassword,
+);
+
+router.post(
+	"/resend-forgot-password-otp",
+	otpLimiter,
+	validateRequest(userAuthValidation.ForgotPassword),
+	AuthController.resendForgotPasswordOtp,
 );
 
 router.post(
