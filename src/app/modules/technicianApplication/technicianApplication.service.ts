@@ -144,7 +144,7 @@ const applyAsTechnician = async (
 	const applicationData = {
 		name: payload.name,
 		email,
-		phone: payload.phone,
+		contactNumber: payload.contactNumber,
 		address: payload.address,
 		qualifications: payload.qualifications,
 		experienceYears: payload.experienceYears,
@@ -352,7 +352,7 @@ const approveApplication = async (
 						name: application.name,
 						email: application.email,
 						address: application.address,
-						contactNumber: application.phone,
+						contactNumber: application.contactNumber,
 						qualifications: application.qualifications,
 						experienceYears: application.experienceYears,
 						bio: application.bio,

@@ -12,11 +12,11 @@ const ApplyTechnicianApplicationZodSchema = z.object({
 		.trim()
 		.email("Please provide a valid email address"),
 
-	phone: z
-		.string("Phone number is required")
+	contactNumber: z
+		.string("Contact number is required")
 		.trim()
-		.min(7, "Phone number must be at least 7 characters long")
-		.max(20, "Phone number must not exceed 20 characters")
+		.min(7, "Contact number must be at least 7 characters long")
+		.max(20, "Contact number must not exceed 20 characters")
 		.optional(),
 
 	address: z

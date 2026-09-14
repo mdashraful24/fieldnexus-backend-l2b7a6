@@ -468,7 +468,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Dhaka Technical Solutions\",\n    \"email\": \"contact@dhakatech.com\",\n    \"phone\": \"+8801712345678\",\n    \"description\": \"Professional field service provider specializing in internet installation, AC maintenance, and electrical repair across Dhaka division.\",\n    \"address\": \"45/A, Green Road, Dhaka 1205, Bangladesh\",\n    \"serviceAreas\": \"Dhaka, Gazipur, Narayanganj\"\n}",
+              "raw": "{\n    \"name\": \"Dhaka Technical Solutions\",\n    \"email\": \"contact@dhakatech.com\",\n    \"contactNumber\": \"+8801712345678\",\n    \"description\": \"Professional field service provider specializing in internet installation, AC maintenance, and electrical repair across Dhaka division.\",\n    \"address\": \"45/A, Green Road, Dhaka 1205, Bangladesh\",\n    \"serviceAreas\": \"Dhaka, Gazipur, Narayanganj\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -726,7 +726,7 @@
                   "type": "text"
                 },
                 {
-                  "key": "phone",
+                  "key": "contactNumber",
                   "value": "+8801712345678",
                   "type": "text"
                 },

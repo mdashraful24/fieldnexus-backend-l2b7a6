@@ -1,10 +1,10 @@
 model TechnicianApplication {
   id String @id @default(uuid())
 
-  name    String
-  email   String  @unique
-  phone   String?
-  address String?
+  name          String
+  email         String  @unique
+  contactNumber String?
+  address       String?
 
   qualifications  String
   experienceYears Int
@@ -14,7 +14,7 @@ model TechnicianApplication {
   resumePublicId      String?
   additionalDocuments Json?
 
-  status         TechnicianApplicationStatus @default(PENDING)
+  status          TechnicianApplicationStatus @default(PENDING)
   rejectionReason String?
   reviewedBy      String?
   reviewedAt      DateTime?

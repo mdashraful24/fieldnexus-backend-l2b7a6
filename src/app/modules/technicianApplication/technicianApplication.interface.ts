@@ -1,7 +1,7 @@
 export interface IApplyAsTechnicianPayload {
 	name: string;
 	email: string;
-	phone?: string;
+	contactNumber?: string;
 	address?: string;
 	qualifications: string;
 	experienceYears: number;

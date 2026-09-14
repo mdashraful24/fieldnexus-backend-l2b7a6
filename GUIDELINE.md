@@ -314,7 +314,7 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 
 | # | Request | Auth | Notes |
 |---|---------|------|-------|
-| F1 | `POST /api/v1/vendors` body `{ name, email, phone?, description?, address?, serviceAreas? }` | Admin | New vendor starts as **PENDING** |
+| F1 | `POST /api/v1/vendors` body `{ name, email, contactNumber?, description?, address?, serviceAreas? }` | Admin | New vendor starts as **PENDING** |
 | F2 | `PATCH /api/v1/vendors/:id` body `{ status: "APPROVED" }` | Admin | **⚠ Note:** the vendor `status` field is not currently wired into the backend — this request runs, but the status does not change. Vendor approval/suspend is pending implementation. |
 | F3 | `GET /api/v1/vendors` | Public | List vendors |
 | F4 | `POST /api/v1/vendors/:vendorId/members` body `{ technicianId }` | Admin | Add a technician to a vendor |

@@ -25,7 +25,7 @@ const createVendor = async (payload: ICreateVendorPayload) => {
 		data: {
 			name: payload.name,
 			email: payload.email,
-			phone: payload.phone,
+			contactNumber: payload.contactNumber,
 			description: payload.description,
 			address: payload.address,
 			serviceAreas: payload.serviceAreas,
@@ -170,7 +170,9 @@ const updateVendor = async (
 		data: {
 			...(payload.name !== undefined && { name: payload.name }),
 			...(payload.email !== undefined && { email: payload.email }),
-			...(payload.phone !== undefined && { phone: payload.phone }),
+			...(payload.contactNumber !== undefined && {
+				contactNumber: payload.contactNumber,
+			}),
 			...(payload.description !== undefined && {
 				description: payload.description,
 			}),

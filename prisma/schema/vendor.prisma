@@ -1,11 +1,11 @@
 model Vendor {
   id String @id @default(uuid())
 
-  name        String
-  email       String  @unique
-  phone       String?
-  description String?
-  address     String?
+  name          String
+  email         String  @unique
+  contactNumber String?
+  description   String?
+  address       String?
 
   serviceAreas String?
   rating       Float   @default(0)

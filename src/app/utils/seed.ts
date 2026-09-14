@@ -200,7 +200,7 @@ export const seedTesterVendor = async () => {
 			data: {
 				name: config.tester_vendor_name,
 				email: config.tester_technician_email,
-				phone: technician.contactNumber,
+				contactNumber: technician.contactNumber,
 				description: "Test vendor for development and testing purposes.",
 				address: "123 Main St, City, Country",
 				serviceAreas: "Dhaka, Gazipur, Narayanganj",
