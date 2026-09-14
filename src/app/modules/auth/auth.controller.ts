@@ -29,14 +29,14 @@ const setAuthCookies = (
 const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
-	await AuthService.registerCustomer(payload);
+	const result = await AuthService.registerCustomer(payload);
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
 		success: true,
 		message:
 			"Verification OTP sent to your email. Please verify your email to complete the registration process.",
-		data: null,
+		data: result,
 	});
 });
 
@@ -153,13 +153,13 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
 
-	await AuthService.forgotPassword(payload);
+	const result = await AuthService.forgotPassword(payload);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
 		success: true,
 		message: `Otp sent to your email ${payload.email}`,
-		data: null,
+		data: result,
 	});
 });
 

@@ -49,17 +49,62 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		Number(config.bcrypt_salt_rounds),
 	);
 
-	// Store OTP and user data in Redis with expiration
-	const expirationInSeconds = 5 * 60;
+	// // Store OTP and user data in Redis with expiration
+	// const expirationInSeconds = 5 * 60;
+
+	// // Generate a random OTP and store it in Redis with an expiration time
+	// const otpKey = `customer-registration-otp:${email}`;
+	// const otpValue = crypto.randomInt(100000, 1000000).toString();
+
+	// await redisClient.set(otpKey, otpValue, {
+	// 	expiration: {
+	// 		type: "EX",
+	// 		value: expirationInSeconds,
+	// 	},
+	// });
+
+	// // Store user (customer) data in Redis with an expiration time
+	// const customerRegistrationKey = `customer-registration-data:${email}`;
+	// const redisUSerDataPayload = {
+	// 	name,
+	// 	email,
+	// 	password: hashedPassword,
+	// 	customer: customerData,
+	// };
+
+	// await redisClient.set(
+	// 	customerRegistrationKey,
+	// 	JSON.stringify(redisUSerDataPayload),
+	// 	{
+	// 		expiration: {
+	// 			type: "EX",
+	// 			value: expirationInSeconds,
+	// 		},
+	// 	},
+	// );
+
+	// The OTP expires in 2 minutes but the pending registration data
+	// stays valid for 5 minutes so the user can still resend a new OTP
+	// after the current one expires.
+	const otpExpirationInSeconds = 2 * 60;
+	const registrationSessionExpirationInSeconds = 5 * 60;
+	const otpExpiresAt = new Date(
+		Date.now() + otpExpirationInSeconds * 1000,
+	).toISOString();
 
 	// Generate a random OTP and store it in Redis with an expiration time
 	const otpKey = `customer-registration-otp:${email}`;
 	const otpValue = crypto.randomInt(100000, 1000000).toString();
 
+	//! This condition is added for development purpose only.
+	if (config.node_env === "development") {
+		console.log(`[dev] OTP ${email} : ${otpValue}`);
+	}
+
 	await redisClient.set(otpKey, otpValue, {
 		expiration: {
 			type: "EX",
-			value: expirationInSeconds,
+			value: otpExpirationInSeconds,
 		},
 	});
 
@@ -78,7 +123,7 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		{
 			expiration: {
 				type: "EX",
-				value: expirationInSeconds,
+				value: registrationSessionExpirationInSeconds,
 			},
 		},
 	);
@@ -92,7 +137,7 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		name,
 		email,
 		otp: otpValue,
-		expirationInMinutes: expirationInSeconds / 60,
+		expirationInMinutes: otpExpirationInSeconds / 60,
 	};
 
 	const html = await ejs.renderFile(templatePath, templateData);
@@ -103,6 +148,8 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		subject: "Verify Your Email - Field Nexus",
 		html,
 	});
+
+	return { expiresIn: otpExpirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: registrationSessionExpirationInSeconds };
 };
 
 const resendRegistrationOtp = async (payload: IResendOtpPayload) => {
