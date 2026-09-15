@@ -1,10 +1,11 @@
-import crypto from "crypto";
-import path from "path";
+import crypto from "node:crypto";
+import path from "node:path";
 import bcrypt from "bcryptjs";
 import ejs from "ejs";
 import type { TokenPayload } from "google-auth-library";
 import httpStatus from "http-status";
 import type { JwtPayload, SignOptions } from "jsonwebtoken";
+
 import {
 	AuthProvider,
 	Role,
@@ -720,11 +721,27 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 	const key = `forgot-password:${isUserExists.email}`;
 
 	const expirationInSeconds = 5 * 60;
+	const resetSessionExpirationInSeconds = 15 * 60;
+	const otpExpiresAt = new Date(
+		Date.now() + expirationInSeconds * 1000,
+	).toISOString();
 
 	await redisClient.set(key, otp, {
 		expiration: {
 			type: "EX",
 			value: expirationInSeconds,
+		},
+	});
+
+	// The OTP expires in 5 minutes but the password reset session
+	// stays valid for 15 minutes so the user can still resend a fresh
+	// OTP after the current one has expired.
+	const sessionKey = `forgot-password-session:${isUserExists.email}`;
+
+	await redisClient.set(sessionKey, "active", {
+		expiration: {
+			type: "EX",
+			value: resetSessionExpirationInSeconds,
 		},
 	});
 
@@ -747,6 +764,8 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 		subject: "Password Reset OTP - Field Nexus",
 		html,
 	});
+
+	return { expiresIn: expirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: resetSessionExpirationInSeconds };
 };
 
 const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
@@ -785,10 +804,11 @@ const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
 	}
 
 	const key = `forgot-password:${isUserExists.email}`;
+	const sessionKey = `forgot-password-session:${isUserExists.email}`;
 
-	const existingOtp = await redisClient.get(key);
+	const existingSession = await redisClient.get(sessionKey);
 
-	if (!existingOtp) {
+	if (!existingSession) {
 		throw new AppError(
 			httpStatus.BAD_REQUEST,
 			"No active password reset session. Please request a password reset first.",
@@ -798,6 +818,7 @@ const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
 	const otp = crypto.randomInt(100000, 1000000).toString();
 
 	const expirationInSeconds = 5 * 60;
+	const resetSessionExpirationInSeconds = 15 * 60;
 	const otpExpiresAt = new Date(
 		Date.now() + expirationInSeconds * 1000,
 	).toISOString();
@@ -808,6 +829,10 @@ const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
 			value: expirationInSeconds,
 		},
 	});
+
+	// Refresh the password reset session so the user can keep
+	// resending a fresh OTP within the session window.
+	await redisClient.expire(sessionKey, resetSessionExpirationInSeconds);
 
 	const templatePath = path.join(
 		process.cwd(),
@@ -829,7 +854,7 @@ const resendForgotPasswordOtp = async (payload: IForgotPasswordPayload) => {
 		html,
 	});
 
-	return { expiresIn: expirationInSeconds, expiresAt: otpExpiresAt };
+	return { expiresIn: expirationInSeconds, expiresAt: otpExpiresAt, sessionExpiresIn: resetSessionExpirationInSeconds };
 };
 
 const resetPassword = async (payload: IResetPasswordPayload) => {
@@ -901,7 +926,9 @@ const resetPassword = async (payload: IResetPasswordPayload) => {
 		},
 	});
 
-	await redisClient.del([key]);
+	const sessionKey = `forgot-password-session:${isUserExists.email}`;
+
+	await redisClient.del([key, sessionKey]);
 
 	const templatePath = path.join(
 		process.cwd(),
