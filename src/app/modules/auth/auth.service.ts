@@ -30,7 +30,7 @@ import type {
 } from "./auth.interface";
 
 const registerCustomer = async (payload: IRegisterCustomerPayload) => {
-	const { name, password, customer: customerData } = payload;
+	const { name, password, contactNumber } = payload;
 
 	const email = payload.email.trim().toLowerCase();
 
@@ -115,7 +115,7 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		name,
 		email,
 		password: hashedPassword,
-		customer: customerData,
+		contactNumber,
 	};
 
 	await redisClient.set(
@@ -301,7 +301,7 @@ const verifyCustomerEmail = async (payload: IVerifyEmailPayload) => {
 				create: {
 					name: customerPayload.name,
 					email: customerPayload.email,
-					contactNumber: customerPayload?.customer?.contactNumber || "",
+					contactNumber: customerPayload?.contactNumber || "",
 				},
 			},
 		},

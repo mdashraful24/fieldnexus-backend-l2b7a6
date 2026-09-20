@@ -9,9 +9,7 @@ export interface IRegisterCustomerPayload {
 	name: string;
 	email: string;
 	password: string;
-	customer: {
-		contactNumber?: string;
-	};
+	contactNumber?: string;
 }
 
 export interface IVerifyEmailPayload {
