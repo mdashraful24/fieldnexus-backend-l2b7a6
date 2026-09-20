@@ -19,7 +19,7 @@ const RegistrationZodSchema = z.object({
 	name: z
 		.string("Not a valid name")
 		.min(3, "Name must be at least 3 characters long.")
-		.max(10, "Name must not exceed 10 characters."),
+		.max(50, "Name must not exceed 50 characters."),
 	email: z.string().email("Not a valid email address"),
 	contactNumber: z
 		.string()
