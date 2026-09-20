@@ -234,7 +234,7 @@ const getUserById = async (userId: string, requester: RequestUser) => {
 		omit: { password: true },
 	});
 
-	if (!user || user.isDeleted || user.status === UserStatus.DELETED) {
+	if (!user) {
 		throw new AppError(httpStatus.NOT_FOUND, "User not found");
 	}
 
@@ -377,7 +377,15 @@ const getAuditLogs = async (query: IQuery) => {
 	const where: Record<string, unknown> = {};
 
 	if (query.action) {
-		where.action = { contains: query.action, mode: "insensitive" };
+		const actions = String(query.action)
+			.split(",")
+			.map((item) => item.trim())
+			.filter(Boolean);
+
+		where.action =
+			actions.length > 1
+				? { in: actions }
+				: { contains: actions[0] ?? "", mode: "insensitive" };
 	}
 
 	if (query.entityType) {
