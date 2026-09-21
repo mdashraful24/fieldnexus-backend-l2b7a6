@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
 	"/",
-	auth(Role.ADMIN),
+	auth(Role.ADMIN, Role.SUPER_ADMIN),
 	validateRequest(vendorValidation.CreateVendorZodSchema),
 	VendorController.createVendor,
 );
