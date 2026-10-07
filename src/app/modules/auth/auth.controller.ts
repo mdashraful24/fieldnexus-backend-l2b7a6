@@ -7,21 +7,33 @@ import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
 
+const getAuthCookieOptions = (req: Request) => {
+	const requestOrigin = req.headers.origin ?? "";
+	const isLocalDevelopment =
+		requestOrigin.startsWith("http://localhost") ||
+		requestOrigin.startsWith("http://127.0.0.1");
+
+	return {
+		httpOnly: true,
+		secure: !isLocalDevelopment,
+		sameSite: isLocalDevelopment ? ("lax" as const) : ("none" as const),
+	};
+};
+
 const setAuthCookies = (
+	req: Request,
 	res: Response,
 	accessToken: string,
 	refreshToken: string,
 ) => {
+	const cookieOptions = getAuthCookieOptions(req);
+
 	res.cookie("accessToken", accessToken, {
-		httpOnly: true,
-		secure: config.node_env !== "development",
-		sameSite: config.node_env === "development" ? "lax" : "none",
+		...cookieOptions,
 		maxAge: 1000 * 60 * 60 * 24, // 24 hour or 1 day
 	});
 	res.cookie("refreshToken", refreshToken, {
-		httpOnly: true,
-		secure: config.node_env !== "development",
-		sameSite: config.node_env === "development" ? "lax" : "none",
+		...cookieOptions,
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
 };
@@ -62,7 +74,7 @@ const verifyCustomerEmail = catchAsync(async (req: Request, res: Response) => {
 
 	const { accessToken, refreshToken } = result;
 
-	setAuthCookies(res, accessToken, refreshToken);
+	setAuthCookies(req, res, accessToken, refreshToken);
 
 	sendResponse(res, {
 		statusCode: httpStatus.CREATED,
@@ -80,7 +92,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 	const result = await AuthService.loginUser(payload);
 	const { accessToken, refreshToken } = result;
 
-	setAuthCookies(res, accessToken, refreshToken);
+	setAuthCookies(req, res, accessToken, refreshToken);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -119,7 +131,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 	const result = await AuthService.refreshToken(req.cookies.refreshToken);
 	const { accessToken, refreshToken: newRefreshToken } = result;
 
-	setAuthCookies(res, accessToken, newRefreshToken);
+	setAuthCookies(req, res, accessToken, newRefreshToken);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -139,7 +151,7 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 
 	const { accessToken, refreshToken } = result;
 
-	setAuthCookies(res, accessToken, refreshToken);
+	setAuthCookies(req, res, accessToken, refreshToken);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
@@ -194,8 +206,10 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const logout = catchAsync(async (req: Request, res: Response) => {
-	res.clearCookie("accessToken");
-	res.clearCookie("refreshToken");
+	const cookieOptions = getAuthCookieOptions(req);
+
+	res.clearCookie("accessToken", cookieOptions);
+	res.clearCookie("refreshToken", cookieOptions);
 
 	sendResponse(res, {
 		statusCode: httpStatus.OK,
