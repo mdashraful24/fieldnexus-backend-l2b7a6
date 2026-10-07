@@ -1,11 +1,13 @@
 import httpStatus from "http-status";
 import {
 	AssignmentStatus,
+	NotificationType,
 	WorkOrderStatus,
 } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
+import { getAdminUserIds, notifyUsers } from "../../utils/notify";
 import type { IAssignWorkOrderPayload } from "./assignment.interface";
 
 const getTechnicianByUserId = (userId: string) =>
@@ -15,6 +17,7 @@ const getWorkOrder = (workOrderId: string) =>
 	prisma.workOrder.findUnique({
 		where: { id: workOrderId, isDeleted: false },
 		include: {
+			customer: { select: { userId: true, name: true } },
 			workAssignments: {
 				where: { isDeleted: false },
 				orderBy: { createdAt: "desc" },
@@ -149,14 +152,13 @@ const assignWorkOrder = async (
 	}
 
 	const isReassign = workOrder.status === WorkOrderStatus.ASSIGNED;
-	const cancelPrevious = isReassign
-		? workOrder.workAssignments.map((a) =>
-				prisma.workAssignment.update({
-					where: { id: a.id },
-					data: { status: AssignmentStatus.CANCELLED },
-				}),
-			)
-		: [];
+	const cancelPreviousAssignments = isReassign ? workOrder.workAssignments : [];
+	const cancelPrevious = cancelPreviousAssignments.map((a) =>
+		prisma.workAssignment.update({
+			where: { id: a.id },
+			data: { status: AssignmentStatus.CANCELLED },
+		}),
+	);
 
 	const [assignment] = await prisma.$transaction([
 		prisma.workAssignment.create({
@@ -177,6 +179,47 @@ const assignWorkOrder = async (
 			data: { status: WorkOrderStatus.ASSIGNED },
 		}),
 	]);
+
+	const orderLabel = `Work order ${workOrder.workOrderNumber} "${workOrder.title}"`;
+	const assignmentType = isReassign
+		? NotificationType.WORK_ORDER_REASSIGNED
+		: NotificationType.WORK_ORDER_ASSIGNED;
+
+	await notifyUsers(
+		prisma,
+		[technician.userId],
+		assignmentType,
+		isReassign
+			? `You have been reassigned to ${orderLabel}.`
+			: `You have been assigned ${orderLabel}.`,
+	);
+
+	await notifyUsers(
+		prisma,
+		[workOrder.customer.userId],
+		assignmentType,
+		isReassign
+			? `${orderLabel} has been reassigned to ${technician.name}.`
+			: `${orderLabel} has been assigned to ${technician.name}.`,
+	);
+
+	const previousTechnicianIds = cancelPreviousAssignments
+		.map((a) => a.technicianId)
+		.filter((technicianId) => technicianId !== payload.technicianId);
+
+	if (previousTechnicianIds.length > 0) {
+		const unassignedTechnicians = await prisma.technician.findMany({
+			where: { id: { in: previousTechnicianIds } },
+			select: { userId: true },
+		});
+
+		await notifyUsers(
+			prisma,
+			unassignedTechnicians.map((t) => t.userId),
+			NotificationType.GENERAL,
+			`You have been unassigned from ${orderLabel}.`,
+		);
+	}
 
 	return assignment;
 };
@@ -220,6 +263,13 @@ const acceptWorkOrder = async (workOrderId: string, user: RequestUser) => {
 			data: { status: WorkOrderStatus.ACCEPTED },
 		}),
 	]);
+
+	await notifyUsers(
+		prisma,
+		[workOrder.customer.userId],
+		NotificationType.WORK_ORDER_ACCEPTED,
+		`${technician.name} accepted work order ${workOrder.workOrderNumber} "${workOrder.title}" and will carry out the service.`,
+	);
 
 	return updatedAssignment;
 };
@@ -270,6 +320,22 @@ const rejectWorkOrder = async (
 			data: { status: WorkOrderStatus.APPROVED },
 		}),
 	]);
+
+	const orderLabel = `Work order ${workOrder.workOrderNumber} "${workOrder.title}"`;
+
+	await notifyUsers(
+		prisma,
+		await getAdminUserIds(),
+		NotificationType.WORK_ORDER_REJECTED,
+		`${technician.name} declined ${orderLabel}. Reason: ${rejectionReason} — please reassign another technician.`,
+	);
+
+	await notifyUsers(
+		prisma,
+		[workOrder.customer.userId],
+		NotificationType.WORK_ORDER_REJECTED,
+		`The assigned technician declined ${orderLabel}. We are arranging another technician.`,
+	);
 
 	return rejectedAssignment;
 };

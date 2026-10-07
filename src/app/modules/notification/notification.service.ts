@@ -11,7 +11,11 @@ const getMyNotifications = async (
 	const limit = Number(query.limit ?? 10);
 	const skip = (page - 1) * limit;
 
-	const where = { userId: user.userId };
+	const where: { userId: string; isRead?: boolean } = { userId: user.userId };
+
+	if (query.isRead === "true" || query.isRead === "false") {
+		where.isRead = query.isRead === "true";
+	}
 
 	const [notifications, total] = await prisma.$transaction([
 		prisma.notification.findMany({

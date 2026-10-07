@@ -2,18 +2,20 @@ import ejs from "ejs";
 import httpStatus from "http-status";
 import path from "path";
 import type { Prisma } from "../../../generated/prisma/client";
-import type { WorkOrderWhereInput } from "../../../generated/prisma/models";
 import {
 	AssignmentStatus,
+	NotificationType,
 	WorkOrderPriority,
 	WorkOrderStatus,
 } from "../../../generated/prisma/enums";
+import type { WorkOrderWhereInput } from "../../../generated/prisma/models";
 import config from "../../config";
-import { prisma } from "../../lib/prisma";
-import { transporter } from "../../lib/nodemailer";
-import { AppError } from "../../utils/AppError";
 import type { IQuery } from "../../interfaces";
+import { transporter } from "../../lib/nodemailer";
+import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
+import { AppError } from "../../utils/AppError";
+import { getAdminUserIds, notifyUsers } from "../../utils/notify";
 import type {
 	ICreateServiceReportPayload,
 	ICreateWorkOrderPayload,
@@ -117,6 +119,13 @@ const createWorkOrder = async (
 		},
 	});
 
+	await notifyUsers(
+		prisma,
+		await getAdminUserIds(),
+		NotificationType.WORK_ORDER_CREATED,
+		`New work order ${workOrder.workOrderNumber} "${workOrder.title}" was submitted by ${workOrder.customer.name}.`,
+	);
+
 	return workOrder;
 };
 
@@ -172,7 +181,9 @@ const getAllWorkOrders = async (query: IQuery) => {
 		andConditions.push({ categoryId: query.categoryId });
 	}
 
-	andConditions.push({ isDeleted: false });
+	if (query.includeDeleted !== "true") {
+		andConditions.push({ isDeleted: false });
+	}
 
 	const whereCondition: WorkOrderWhereInput = {
 		AND: andConditions,
@@ -256,6 +267,8 @@ const getMyWorkOrders = async (query: IQuery, user: RequestUser) => {
 	return getAllWorkOrders({
 		...query,
 		customerId: customer.id,
+		// customers never see soft-deleted orders
+		includeDeleted: undefined,
 	});
 };
 
@@ -472,10 +485,14 @@ const updateWorkOrderStatus = async (
 	const workOrder = await prisma.workOrder.findUnique({
 		where: { id: workOrderId, isDeleted: false },
 		include: {
+			customer: { select: { userId: true, name: true } },
 			workAssignments: {
 				where: { isDeleted: false },
 				orderBy: { createdAt: "desc" },
 				take: 1,
+				include: {
+					technician: { select: { userId: true, name: true } },
+				},
 			},
 		},
 	});
@@ -613,6 +630,108 @@ const updateWorkOrderStatus = async (
 		await sendWorkOrderCancellationEmail(workOrderId);
 	}
 
+	const orderLabel = `Work order ${updatedWorkOrder?.workOrderNumber ?? workOrderId}`;
+	const customerUserId = workOrder.customer.userId;
+	const assignedTechnicianUserId =
+		workOrder.workAssignments[0]?.technician?.userId;
+
+	const notifyCustomer = (
+		type: NotificationType,
+		message: string,
+	): Promise<void> => notifyUsers(prisma, [customerUserId], type, message);
+
+	const notifyAdmins = (
+		type: NotificationType,
+		message: string,
+	): Promise<void> =>
+		getAdminUserIds().then((adminIds) =>
+			notifyUsers(prisma, adminIds, type, message),
+		);
+
+	switch (newStatus) {
+		case WorkOrderStatus.APPROVED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_APPROVED,
+				`${orderLabel} has been approved.`,
+			);
+			break;
+		case WorkOrderStatus.ASSIGNED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_ASSIGNED,
+				`${orderLabel} has been assigned to a technician.`,
+			);
+			break;
+		case WorkOrderStatus.ACCEPTED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_ACCEPTED,
+				`The technician accepted ${orderLabel}.`,
+			);
+			break;
+		case WorkOrderStatus.REASSIGNED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_REASSIGNED,
+				`${orderLabel} is being reassigned to another technician.`,
+			);
+			break;
+		case WorkOrderStatus.EN_ROUTE:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_EN_ROUTE,
+				`The technician is on the way for ${orderLabel}.`,
+			);
+			break;
+		case WorkOrderStatus.IN_PROGRESS:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_IN_PROGRESS,
+				`Work has started on ${orderLabel}.`,
+			);
+			break;
+		case WorkOrderStatus.COMPLETED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_COMPLETED,
+				`${orderLabel} is completed. Please complete the payment and leave your feedback.`,
+			);
+			await notifyAdmins(
+				NotificationType.WORK_ORDER_COMPLETED,
+				`${orderLabel} has been completed.`,
+			);
+			break;
+		case WorkOrderStatus.FAILED:
+			await notifyCustomer(
+				NotificationType.WORK_ORDER_FAILED,
+				`${orderLabel} was reported as failed. Our team will follow up shortly.`,
+			);
+			await notifyAdmins(
+				NotificationType.WORK_ORDER_FAILED,
+				`${orderLabel} was reported as failed by the technician.`,
+			);
+			break;
+		case WorkOrderStatus.CANCELLED:
+			if (user.role === "CUSTOMER") {
+				await notifyAdmins(
+					NotificationType.WORK_ORDER_CANCELLED,
+					`${orderLabel} was cancelled by the customer.`,
+				);
+			} else {
+				await notifyCustomer(
+					NotificationType.WORK_ORDER_CANCELLED,
+					`${orderLabel} was cancelled.`,
+				);
+			}
+
+			if (
+				assignedTechnicianUserId &&
+				assignedTechnicianUserId !== user.userId
+			) {
+				await notifyUsers(
+					prisma,
+					[assignedTechnicianUserId],
+					NotificationType.WORK_ORDER_CANCELLED,
+					`${orderLabel} has been cancelled and no longer requires attendance.`,
+				);
+			}
+			break;
+	}
+
 	return updatedWorkOrder;
 };
 
@@ -635,6 +754,9 @@ const getMyAssignedWorkOrders = async (user: RequestUser) => {
 					WorkOrderStatus.ACCEPTED,
 					WorkOrderStatus.EN_ROUTE,
 					WorkOrderStatus.IN_PROGRESS,
+					WorkOrderStatus.COMPLETED,
+					WorkOrderStatus.FAILED,
+					WorkOrderStatus.CANCELLED,
 				],
 			},
 			workAssignments: {
@@ -718,6 +840,7 @@ const createServiceReport = async (
 	const workOrder = await prisma.workOrder.findUnique({
 		where: { id: workOrderId, isDeleted: false },
 		include: {
+			customer: { select: { userId: true, name: true } },
 			serviceReport: true,
 			workAssignments: {
 				where: { isDeleted: false },
@@ -780,6 +903,13 @@ const createServiceReport = async (
 			},
 		},
 	});
+
+	await notifyUsers(
+		prisma,
+		[workOrder.customer.userId],
+		NotificationType.SERVICE_REPORT_SUBMITTED,
+		`A service report was submitted for work order ${workOrder.workOrderNumber}. You can review it in the booking details.`,
+	);
 
 	return serviceReport;
 };

@@ -20,6 +20,7 @@ import { transporter } from "../../lib/nodemailer";
 import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
+import { getAdminUserIds, notifyUsers } from "../../utils/notify";
 import type {
 	IInitiatePaymentPayload,
 	IRefundPaymentPayload,
@@ -552,6 +553,9 @@ const initiatePayment = async (
 	return transactionResult;
 };
 
+const frontendUrl = (path: string) =>
+	`${(config.frontend_url ?? "").replace(/\/+$/, "")}${path}`;
+
 const handlePaymentCallback = async (query: Record<string, unknown>) => {
 	const transactionResult = await prisma.$transaction(
 		async (tx) => {
@@ -593,7 +597,10 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 
 			const payment = await tx.payment.findFirst({
 				where: { bkashPaymentId: paymentId },
-				include: { customer: { select: { userId: true } } },
+				include: {
+					customer: { select: { userId: true } },
+					workOrder: { select: { workOrderNumber: true } },
+				},
 			});
 
 			if (!payment) {
@@ -614,9 +621,16 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 					data: {
 						userId: payment.customer.userId,
 						type: NotificationType.PAYMENT_SUCCESS,
-						message: `Payment of ${payment.amount} BDT for your work order was successful.`,
+						message: `Payment of ${payment.amount} BDT for work order ${payment.workOrder.workOrderNumber} was successful.`,
 					},
 				});
+
+				await notifyUsers(
+					tx,
+					await getAdminUserIds(),
+					NotificationType.PAYMENT_SUCCESS,
+					`Payment of ${payment.amount} BDT was received for work order ${payment.workOrder.workOrderNumber}.`,
+				);
 
 				await sendPaymentInvoiceEmail(
 					payment.id,
@@ -625,7 +639,9 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				);
 
 				return {
-					redirectUrl: `${config.frontend_url}?payment=success`,
+					redirectUrl: frontendUrl(
+						`/customer/payment-history/details?paymentId=${payment.id}`,
+					),
 				};
 			} else if (status === "failure") {
 				await tx.payment.update({
@@ -637,7 +653,9 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				});
 
 				return {
-					redirectUrl: `${config.frontend_url}?payment=failure`,
+					redirectUrl: frontendUrl(
+						`/customer/bookings/details?workOrderId=${payment.workOrderId}`,
+					),
 				};
 			} else if (status === "cancel") {
 				await tx.payment.update({
@@ -649,11 +667,15 @@ const handlePaymentCallback = async (query: Record<string, unknown>) => {
 				});
 
 				return {
-					redirectUrl: `${config.frontend_url}?payment=cancel`,
+					redirectUrl: frontendUrl(
+						`/customer/bookings/details?workOrderId=${payment.workOrderId}`,
+					),
 				};
 			} else {
 				return {
-					redirectUrl: `${config.frontend_url}?payment=error`,
+					redirectUrl: frontendUrl(
+						`/customer/bookings/details?workOrderId=${payment.workOrderId}`,
+					),
 				};
 			}
 		},

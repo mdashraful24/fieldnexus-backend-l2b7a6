@@ -6,6 +6,7 @@ const NotificationQueryZodSchema = z.object({
 		.string()
 		.regex(/^\d+$/, "Limit must be a positive number")
 		.optional(),
+	isRead: z.enum(["true", "false"]).optional(),
 });
 
 export const notificationValidation = {

@@ -1,8 +1,12 @@
 import httpStatus from "http-status";
-import { WorkOrderStatus } from "../../../generated/prisma/enums";
+import {
+	NotificationType,
+	WorkOrderStatus,
+} from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import type { RequestUser } from "../../middlewares/checkAuth";
 import { AppError } from "../../utils/AppError";
+import { notifyUsers } from "../../utils/notify";
 import type { ICreateFeedbackPayload } from "./feedback.interface";
 
 const createFeedback = async (
@@ -74,6 +78,20 @@ const createFeedback = async (
 			},
 		},
 	});
+
+	const assignedTechnicians = await prisma.technician.findMany({
+		where: {
+			id: { in: workOrder.workAssignments.map((a) => a.technicianId) },
+		},
+		select: { userId: true },
+	});
+
+	await notifyUsers(
+		prisma,
+		assignedTechnicians.map((t) => t.userId),
+		NotificationType.FEEDBACK_SUBMITTED,
+		`The customer left a ${payload.rating}-star rating for work order ${feedback.workOrder.workOrderNumber}.`,
+	);
 
 	return feedback;
 };
