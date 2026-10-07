@@ -25,6 +25,12 @@ router.get(
 );
 
 router.get(
+	"/my",
+	auth(Role.CUSTOMER),
+	WorkOrderController.getMyWorkOrders,
+);
+
+router.get(
 	"/my-assigned",
 	auth(Role.TECHNICIAN),
 	WorkOrderController.getMyAssignedWorkOrders,

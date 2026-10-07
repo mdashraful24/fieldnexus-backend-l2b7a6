@@ -240,6 +240,25 @@ const getAllWorkOrders = async (query: IQuery) => {
 	};
 };
 
+const getMyWorkOrders = async (query: IQuery, user: RequestUser) => {
+	const customer = await prisma.customer.findUnique({
+		where: { userId: user.userId },
+		select: { id: true },
+	});
+
+	if (!customer) {
+		throw new AppError(
+			httpStatus.NOT_FOUND,
+			"Customer profile not found for this account",
+		);
+	}
+
+	return getAllWorkOrders({
+		...query,
+		customerId: customer.id,
+	});
+};
+
 const getWorkOrderById = async (workOrderId: string, user: RequestUser) => {
 	const workOrder = await prisma.workOrder.findUnique({
 		where: { id: workOrderId, isDeleted: false },
@@ -834,6 +853,7 @@ const getServiceReport = async (workOrderId: string, user: RequestUser) => {
 export const WorkOrderService = {
 	createWorkOrder,
 	getAllWorkOrders,
+	getMyWorkOrders,
 	getWorkOrderById,
 	updateWorkOrder,
 	updateWorkOrderStatus,

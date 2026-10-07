@@ -33,6 +33,21 @@ const getAllWorkOrders = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getMyWorkOrders = catchAsync(async (req: Request, res: Response) => {
+	const query = req.query;
+	const user = req.user as RequestUser;
+
+	const result = await WorkOrderService.getMyWorkOrders(query, user);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "My work orders retrieved successfully",
+		data: result.data,
+		meta: result.meta,
+	});
+});
+
 const getWorkOrderById = catchAsync(async (req: Request, res: Response) => {
 	const id = req.params.id as string;
 	const user = req.user as RequestUser;
@@ -142,6 +157,7 @@ const getServiceReport = catchAsync(async (req: Request, res: Response) => {
 export const WorkOrderController = {
 	createWorkOrder,
 	getAllWorkOrders,
+	getMyWorkOrders,
 	getWorkOrderById,
 	updateWorkOrder,
 	updateWorkOrderStatus,
