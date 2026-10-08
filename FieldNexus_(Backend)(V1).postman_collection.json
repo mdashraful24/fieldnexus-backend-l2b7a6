@@ -700,9 +700,181 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Public Vendors (Approved Only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vendors/public?page=1&limit=10&sortBy=createdAt&sortOrder=desc&searchTerm=Dhaka",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "public"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Dhaka",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Public vendor directory. Always returns APPROVED vendors only - any `status` or `includeDeleted` query params sent by the client are ignored."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Vendor Status (Super Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"APPROVED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors/{{vendorId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors",
+                "{{vendorId}}",
+                "status"
+              ]
+            },
+            "description": "Approve or suspend a vendor. SUPER_ADMIN only. Allowed values: APPROVED, SUSPENDED."
+          },
+          "response": []
         }
       ],
       "description": "Vendor management endpoints - CRUD operations plus vendor-member (technician) management. Mutations require admin authentication."
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "Send Contact Message (Public)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Tanvir Ahmed\",\n    \"email\": \"tanvir.ahmed@example.com\",\n    \"subject\": \"Question about AC maintenance pricing\",\n    \"message\": \"Hello, I would like to know the base price for AC servicing and whether spare parts are charged separately. Please share the details.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contact"
+              ]
+            },
+            "description": "Public contact/support form. Body: name (2-100), email, subject (3-150), message (10-2000)."
+          },
+          "response": []
+        },
+        {
+          "name": "List Contact Messages (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contact?page=1&limit=20&isRead=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contact"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "isRead",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Admin/Super Admin inbox of submitted contact messages."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Contact Message Read/Unread (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"isRead\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contact/{{contactId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contact",
+                "{{contactId}}",
+                "read"
+              ]
+            },
+            "description": "Toggle a contact message between read and unread."
+          },
+          "response": []
+        }
+      ],
+      "description": "Contact / support message endpoints - public submission plus the admin inbox (list and mark read)."
     },
     {
       "name": "Technician Applications",
@@ -1085,6 +1257,52 @@
                 "work-orders"
               ]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "My Work Orders (Customer)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/work-orders/my?page=1&limit=10&sortBy=createdAt&sortOrder=desc&status=PENDING",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders",
+                "my"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Paginated list of the authenticated customer's own work orders (CUSTOMER role only)."
           },
           "response": []
         },
@@ -2027,6 +2245,539 @@
         }
       ],
       "description": "Notification management endpoints"
+    },
+    {
+      "name": "Demo Data",
+      "item": [
+        {
+          "name": "Demo: Send Contact Message",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Tanvir Ahmed\",\n    \"email\": \"tanvir.ahmed@example.com\",\n    \"subject\": \"Question about AC maintenance pricing\",\n    \"message\": \"Hello, I would like to know the base price for AC servicing and whether spare parts are charged separately. Please share the details.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contact"
+              ]
+            },
+            "description": "Demo payload for the public contact form. Public - no auth required."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Message sent successfully\",\n    \"data\": {\n        \"id\": \"8b6f1a4c-2d9e-4a71-9c3b-5e7d1f0a2b41\",\n        \"name\": \"Tanvir Ahmed\",\n        \"email\": \"tanvir.ahmed@example.com\",\n        \"subject\": \"Question about AC maintenance pricing\",\n        \"message\": \"Hello, I would like to know the base price for AC servicing and whether spare parts are charged separately. Please share the details.\",\n        \"isRead\": false,\n        \"createdAt\": \"2026-10-01T09:15:00.000Z\",\n        \"updatedAt\": \"2026-10-01T09:15:00.000Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Create Service Category",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"AC Maintenance & Repair\",\n    \"description\": \"Servicing, gas refilling, troubleshooting and repair of split and window air conditioners for homes and offices.\",\n    \"basePrice\": 1200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service-categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service-categories"
+              ]
+            },
+            "description": "Demo payload - requires ADMIN or SUPER_ADMIN auth."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Service category created successfully\",\n    \"data\": {\n        \"id\": \"2a9d5f70-6c1b-4d2e-8f3a-9b4e6c1d7a05\",\n        \"name\": \"AC Maintenance & Repair\",\n        \"description\": \"Servicing, gas refilling, troubleshooting and repair of split and window air conditioners for homes and offices.\",\n        \"basePrice\": \"1200\",\n        \"isActive\": true,\n        \"isDeleted\": false,\n        \"deletedAt\": null,\n        \"createdAt\": \"2026-10-01T09:20:00.000Z\",\n        \"updatedAt\": \"2026-10-01T09:20:00.000Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Create Vendor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Chattogram Electrical Services\",\n    \"email\": \"hello@ctgelectrical.com\",\n    \"contactNumber\": \"+8801811223344\",\n    \"description\": \"Certified electrical and appliance repair team serving Chattogram city with 24/7 emergency support.\",\n    \"address\": \"22/K, O.R. Nizam Road, Chattogram 4000, Bangladesh\",\n    \"serviceAreas\": \"Chattogram, Cox's Bazar, Feni\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vendors"
+              ]
+            },
+            "description": "Demo payload - requires ADMIN or SUPER_ADMIN auth. New vendors start with status PENDING until a super admin approves them."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Vendor created successfully\",\n    \"data\": {\n        \"id\": \"5c1e8b3a-7f4d-4e92-a1b6-3d0c9e8f2a77\",\n        \"name\": \"Chattogram Electrical Services\",\n        \"email\": \"hello@ctgelectrical.com\",\n        \"contactNumber\": \"+8801811223344\",\n        \"description\": \"Certified electrical and appliance repair team serving Chattogram city with 24/7 emergency support.\",\n        \"address\": \"22/K, O.R. Nizam Road, Chattogram 4000, Bangladesh\",\n        \"serviceAreas\": \"Chattogram, Cox's Bazar, Feni\",\n        \"rating\": 0,\n        \"status\": \"PENDING\",\n        \"isDeleted\": false,\n        \"deletedAt\": null,\n        \"createdAt\": \"2026-10-01T09:30:00.000Z\",\n        \"updatedAt\": \"2026-10-01T09:30:00.000Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Create Work Order (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Bedroom AC not cooling after power surge\",\n    \"description\": \"The split AC in the bedroom turns on but blows warm air since last night's power surge. Filter looks clean.\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"priority\": \"HIGH\",\n    \"scheduledAt\": \"2026-10-05T10:00:00.000Z\",\n    \"latitude\": 23.8103,\n    \"longitude\": 90.4125\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/work-orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders"
+              ]
+            },
+            "description": "Demo payload - requires CUSTOMER auth. `categoryId` must be an existing service category id. New work orders start as PENDING with version 0."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Work order created successfully\",\n    \"data\": {\n        \"id\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n        \"workOrderNumber\": \"WO-20261001-0001\",\n        \"title\": \"Bedroom AC not cooling after power surge\",\n        \"description\": \"The split AC in the bedroom turns on but blows warm air since last night's power surge. Filter looks clean.\",\n        \"version\": 0,\n        \"status\": \"PENDING\",\n        \"priority\": \"HIGH\",\n        \"scheduledAt\": \"2026-10-05T10:00:00.000Z\",\n        \"slaDeadline\": null,\n        \"completedAt\": null,\n        \"cancellationReason\": null,\n        \"latitude\": \"23.8103\",\n        \"longitude\": \"90.4125\",\n        \"isDeleted\": false,\n        \"deletedAt\": null,\n        \"createdAt\": \"2026-10-01T10:00:00.000Z\",\n        \"updatedAt\": \"2026-10-01T10:00:00.000Z\",\n        \"customerId\": \"9d3b6a15-4e7c-4f80-b2a9-6c1f0d5e8a33\",\n        \"categoryId\": \"2a9d5f70-6c1b-4d2e-8f3a-9b4e6c1d7a05\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: List Work Orders with Pagination (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/work-orders?page=1&limit=2&sortBy=createdAt&sortOrder=desc&status=PENDING&priority=HIGH",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING"
+                },
+                {
+                  "key": "priority",
+                  "value": "HIGH"
+                }
+              ]
+            },
+            "description": "Demo of a paginated list response including the `meta` block. Requires ADMIN or SUPER_ADMIN auth."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Work orders retrieved successfully\",\n    \"data\": [\n        {\n            \"id\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n            \"workOrderNumber\": \"WO-20261001-0001\",\n            \"title\": \"Bedroom AC not cooling after power surge\",\n            \"version\": 0,\n            \"status\": \"PENDING\",\n            \"priority\": \"HIGH\",\n            \"createdAt\": \"2026-10-01T10:00:00.000Z\",\n            \"updatedAt\": \"2026-10-01T10:00:00.000Z\"\n        },\n        {\n            \"id\": \"7e0c4b18-93af-4d51-8c27-1a6f3e9b0d52\",\n            \"workOrderNumber\": \"WO-20261001-0002\",\n            \"title\": \"Kitchen exhaust fan making loud noise\",\n            \"version\": 1,\n            \"status\": \"PENDING\",\n            \"priority\": \"HIGH\",\n            \"createdAt\": \"2026-10-01T11:45:00.000Z\",\n            \"updatedAt\": \"2026-10-01T12:10:00.000Z\"\n        }\n    ],\n    \"meta\": {\n        \"page\": 1,\n        \"limit\": 2,\n        \"total\": 2,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Assign Work Order (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"vendorId\": \"{{vendorId}}\",\n    \"technicianId\": \"{{technicianId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders",
+                "{{workOrderId}}",
+                "assign"
+              ]
+            },
+            "description": "Demo payload - the work order must be APPROVED or ASSIGNED before it can be assigned to a vendor + technician."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Work order assigned successfully\",\n    \"data\": {\n        \"id\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n        \"workOrderNumber\": \"WO-20261001-0001\",\n        \"status\": \"ASSIGNED\",\n        \"version\": 2,\n        \"updatedAt\": \"2026-10-01T13:05:00.000Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Update Work Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"IN_PROGRESS\",\n    \"version\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders",
+                "{{workOrderId}}",
+                "status"
+              ]
+            },
+            "description": "Demo payload - always send the current `version` (optimistic lock). A stale version returns 409. Allowed status transitions: PENDING -> APPROVED|CANCELLED, APPROVED -> ASSIGNED|CANCELLED, ASSIGNED -> ACCEPTED|REASSIGNED|CANCELLED, ACCEPTED -> EN_ROUTE|CANCELLED, EN_ROUTE -> IN_PROGRESS, IN_PROGRESS -> COMPLETED|FAILED."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Work order status updated successfully\",\n    \"data\": {\n        \"id\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n        \"workOrderNumber\": \"WO-20261001-0001\",\n        \"status\": \"IN_PROGRESS\",\n        \"version\": 4,\n        \"updatedAt\": \"2026-10-01T14:30:00.000Z\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Submit Service Report (Technician)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workDescription\": \"Inspected the outdoor unit, replaced the damaged capacitor and re-gassed the system. Ran a 20-minute cooling test at 24C - airflow and temperature now within spec.\",\n    \"issueFound\": \"Capacitor burnt and low refrigerant level after the power surge.\",\n    \"solutionProvided\": \"Replaced the 35uF capacitor, topped up R410A refrigerant and cleaned both filters.\",\n    \"partsUsed\": [\n        {\n            \"name\": \"AC Capacitor 35uF\",\n            \"quantity\": 1\n        },\n        {\n            \"name\": \"R410A Refrigerant (kg)\",\n            \"quantity\": 1\n        }\n    ],\n    \"hoursWorked\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/service-report",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders",
+                "{{workOrderId}}",
+                "service-report"
+              ]
+            },
+            "description": "Demo payload - TECHNICIAN only, assigned technician. Submitting a report completes the job (work order moves to COMPLETED)."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Service report submitted successfully\",\n    \"data\": {\n        \"id\": \"3f8a0c62-5d19-4b7e-90a4-8c2e7f1b6d93\",\n        \"workDescription\": \"Inspected the outdoor unit, replaced the damaged capacitor and re-gassed the system. Ran a 20-minute cooling test at 24C - airflow and temperature now within spec.\",\n        \"issueFound\": \"Capacitor burnt and low refrigerant level after the power surge.\",\n        \"solutionProvided\": \"Replaced the 35uF capacitor, topped up R410A refrigerant and cleaned both filters.\",\n        \"partsUsed\": [\n            {\n                \"name\": \"AC Capacitor 35uF\",\n                \"quantity\": 1\n            },\n            {\n                \"name\": \"R410A Refrigerant (kg)\",\n                \"quantity\": 1\n            }\n        ],\n        \"hoursWorked\": 2,\n        \"isDeleted\": false,\n        \"deletedAt\": null,\n        \"createdAt\": \"2026-10-01T16:00:00.000Z\",\n        \"updatedAt\": \"2026-10-01T16:00:00.000Z\",\n        \"workOrderId\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n        \"technicianId\": \"6b2d9e47-0a1c-4f38-85d7-2e9c4a1b7f06\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Submit Feedback (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Technician arrived on time, explained the fault clearly and fixed the AC in one visit. Highly recommended!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/work-orders/{{workOrderId}}/feedback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "work-orders",
+                "{{workOrderId}}",
+                "feedback"
+              ]
+            },
+            "description": "Demo payload - CUSTOMER only, on their own COMPLETED work order. Rating must be 1-5; one feedback per work order."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 201,\n    \"message\": \"Feedback submitted successfully\",\n    \"data\": {\n        \"id\": \"a0d7e3c1-8f52-4b69-9d14-5c8a2e6f0b37\",\n        \"rating\": 5,\n        \"comment\": \"Technician arrived on time, explained the fault clearly and fixed the AC in one visit. Highly recommended!\",\n        \"isDeleted\": false,\n        \"deletedAt\": null,\n        \"createdAt\": \"2026-10-01T17:10:00.000Z\",\n        \"updatedAt\": \"2026-10-01T17:10:00.000Z\",\n        \"workOrderId\": \"f4a7c2e9-1b58-4d63-9a0f-7e2c5b8d1f64\",\n        \"customerId\": \"9d3b6a15-4e7c-4f80-b2a9-6c1f0d5e8a33\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Initiate Payment (bKash)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"workOrderId\": \"{{workOrderId}}\",\n    \"payerReference\": \"01712345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/initiate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "initiate"
+              ]
+            },
+            "description": "Demo payload - CUSTOMER only, own work order, status must be COMPLETED. `payerReference` must be a valid BD mobile number (01[3-9]xxxxxxxxx). Redirect the browser to `data.paymentUrl` to complete the bKash sandbox payment."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Payment initiated successfully\",\n    \"data\": {\n        \"paymentUrl\": \"https://sandbox.bka.sh/apps/v2/ui/checkout?paymentID=TRX7F2A91C04E&challan=NO\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: List Contact Messages (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contact?page=1&limit=2&isRead=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contact"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "isRead",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Demo of the admin contact inbox listing unread messages. Requires ADMIN or SUPER_ADMIN auth."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Contact messages retrieved successfully\",\n    \"data\": [\n        {\n            \"id\": \"8b6f1a4c-2d9e-4a71-9c3b-5e7d1f0a2b41\",\n            \"name\": \"Tanvir Ahmed\",\n            \"email\": \"tanvir.ahmed@example.com\",\n            \"subject\": \"Question about AC maintenance pricing\",\n            \"message\": \"Hello, I would like to know the base price for AC servicing and whether spare parts are charged separately. Please share the details.\",\n            \"isRead\": false,\n            \"createdAt\": \"2026-10-01T09:15:00.000Z\",\n            \"updatedAt\": \"2026-10-01T09:15:00.000Z\"\n        },\n        {\n            \"id\": \"c4e9b2a7-6d03-4f15-8a7e-1b9c0d3f5e28\",\n            \"name\": \"Nusrat Jahan\",\n            \"email\": \"nusrat.jahan@example.com\",\n            \"subject\": \"Service coverage in Sylhet\",\n            \"message\": \"Do you provide technician visits in Sylhet city? I need an electrician for my office next week.\",\n            \"isRead\": false,\n            \"createdAt\": \"2026-10-01T12:40:00.000Z\",\n            \"updatedAt\": \"2026-10-01T12:40:00.000Z\"\n        }\n    ],\n    \"meta\": {\n        \"page\": 1,\n        \"limit\": 2,\n        \"total\": 2,\n        \"totalPages\": 1\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Demo: Admin Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard-stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard-stats"
+              ]
+            },
+            "description": "Demo of the admin dashboard aggregate response. Requires ADMIN or SUPER_ADMIN auth."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"success\": true,\n    \"statusCode\": 200,\n    \"message\": \"Dashboard statistics retrieved successfully\",\n    \"data\": {\n        \"totalWorkOrders\": 96,\n        \"completedWorkOrders\": 54,\n        \"activeTechnicians\": 11,\n        \"totalCustomers\": 87,\n        \"totalTechnicians\": 13,\n        \"totalAdmins\": 3,\n        \"totalUsers\": 100,\n        \"totalRevenue\": 184500,\n        \"totalRefunds\": 4500,\n        \"totalVendors\": 14,\n        \"vendorsByStatus\": { \"PENDING\": 2, \"APPROVED\": 11, \"SUSPENDED\": 1 },\n        \"technicianApplications\": { \"PENDING\": 5, \"APPROVED\": 21, \"REJECTED\": 4 },\n        \"totalTechnicianApplications\": 30,\n        \"slaComplianceRate\": 91.7,\n        \"workOrdersByStatus\": { \"PENDING\": 12, \"APPROVED\": 8, \"ASSIGNED\": 6, \"ACCEPTED\": 3, \"EN_ROUTE\": 2, \"IN_PROGRESS\": 5, \"COMPLETED\": 54, \"CANCELLED\": 4, \"REASSIGNED\": 1, \"FAILED\": 1 }\n    }\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Demo data - ready-to-run sample requests with realistic payloads and saved example responses (demo IDs, sample work orders, contact messages, etc.). Use these to explore the API without building bodies from scratch. Variables such as {{categoryId}}, {{vendorId}}, {{technicianId}}, {{workOrderId}} and {{paymentId}} must still be filled from a previous request's response."
     }
   ],
   "variable": [

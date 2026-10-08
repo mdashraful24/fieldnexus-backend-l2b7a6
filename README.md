@@ -210,7 +210,7 @@ On first start the server **auto-seeds**: one Super Admin, one Admin, one Tester
 
 > **Live links:** https://fieldnexus-backend.vercel.app
 
-> **API Docs links:** https://documenter.getpostman.com/view/54687734/2sBYAvwqrw
+> **API Docs links:** https://documenter.getpostman.com/view/54687734/2sBYHQ1hQp
 
 ---
 

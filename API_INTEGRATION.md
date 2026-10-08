@@ -14,6 +14,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 
 | Frontend Component / Screen | Request | Backend Endpoint |
 |-----------------------------|---------|------------------|
+| Health check / uptime probe (root, no `/api` prefix) | `GET` | `/` |
 | Auth Layout (token check, user session) | `GET` | `/auth/me` |
 | Register form (Customer sign-up) | `POST` | `/auth/register` |
 | Email verification screen (enter OTP) | `POST` | `/auth/verify-email` |
@@ -44,9 +45,11 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Service catalog / category list | `GET` | `/service-categories` |
 | Service category detail | `GET` | `/service-categories/:id` |
 | Vendors directory list (approved only) | `GET` | `/vendors/public?page=&limit=&search=` (forces `status=APPROVED`; `status`/`includeDeleted` params are ignored) |
+| Vendors directory list (unfiltered, also unauthenticated) | `GET` | `/vendors?page=&limit=&searchTerm=&status=&includeDeleted=` |
 | Vendor detail / team page | `GET` | `/vendors/:id` |
-| Technician application form | `POST` | `/technician-applications/apply` |
-| Application status tracker | `GET` | `/technician-applications/status` |
+| Technician application form | `POST` | `/technician-applications/apply` (multipart: `resume` required, `additionalDocuments` ≤5) |
+| Application status tracker | `GET` | `/technician-applications/status?email=` |
+| Contact / support form (website footer, etc.) | `POST` | `/contact` `{ name, email, subject, message }` |
 
 ---
 
@@ -55,6 +58,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Frontend Component / Screen | Request | Backend Endpoint |
 |-----------------------------|---------|------------------|
 | Create service request form | `POST` | `/work-orders` |
+| My work orders list (paginated) | `GET` | `/work-orders/my?page=&limit=&searchTerm=&status=` |
 | My work orders (open one of your orders) | `GET` | `/work-orders/:id` |
 | Work order detail page | `GET` | `/work-orders/:id` |
 | Cancel order dialog (PENDING/APPROVED only) | `PATCH` | `/work-orders/:id/status` `{ status: "CANCELLED", cancellationReason, version }` |
@@ -71,7 +75,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Mark one notification read | `PATCH` | `/notifications/:id/read` |
 | Mark all notifications read | `PATCH` | `/notifications/read-all` |
 
-> **Note:** A customer "my work orders" **list** endpoint does not exist yet — `GET /work-orders` is Admin-only and `GET /work-orders/my-assigned` is Technician-only. Customers currently open each order individually via `GET /work-orders/:id`.
+> **Note:** Customers list their own orders via `GET /work-orders/my` (Customer-only). `GET /work-orders` is Admin-only and `GET /work-orders/my-assigned` is Technician-only.
 
 ---
 
@@ -130,6 +134,8 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Refund order action | `POST` | `/payments/:paymentId/refund` `{ reason }` |
 | Cancel payment action | `POST` | `/payments/:paymentId/cancel` |
 | Audit log page | `GET` | `/admin/audit-logs?page=&limit=&action=&entityType=` |
+| Contact message inbox | `GET` | `/contact?page=&limit=&isRead=` |
+| Mark contact message read / unread | `PATCH` | `/contact/:id/read` `{ isRead }` |
 
 ---
 
