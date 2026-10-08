@@ -84,6 +84,23 @@ const restoreVendor = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const changeVendorStatus = catchAsync(async (req: Request, res: Response) => {
+	const id = req.params.id as string;
+	const payload = req.body;
+
+	const result = await VendorService.changeVendorStatus(id, payload);
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message:
+			payload.status === "APPROVED"
+				? "Vendor approved successfully"
+				: "Vendor suspended successfully",
+		data: result,
+	});
+});
+
 const addMember = catchAsync(async (req: Request, res: Response) => {
 	const vendorId = req.params.vendorId as string;
 	const payload = req.body;
@@ -146,6 +163,7 @@ export const VendorController = {
 	updateVendor,
 	deleteVendor,
 	restoreVendor,
+	changeVendorStatus,
 	addMember,
 	getMembers,
 	removeMember,

@@ -16,6 +16,10 @@ export interface IUpdateVendorPayload {
 	serviceAreas?: string;
 }
 
+export interface IChangeVendorStatusPayload {
+	status: "APPROVED" | "SUSPENDED";
+}
+
 export interface IAddVendorMemberPayload {
 	technicianId: string;
 }

@@ -5,6 +5,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
 import type {
 	IAddVendorMemberPayload,
+	IChangeVendorStatusPayload,
 	ICreateVendorPayload,
 	IUpdateVendorPayload,
 } from "./vendor.interface";
@@ -71,6 +72,16 @@ const getAllVendors = async (query: IQuery) => {
 		});
 	}
 
+	if (query.status) {
+		const validStatuses = ["PENDING", "APPROVED", "SUSPENDED"];
+
+		if (validStatuses.includes(query.status)) {
+			andConditions.push({
+				status: { equals: query.status as "PENDING" | "APPROVED" | "SUSPENDED" },
+			});
+		}
+	}
+
 	if (query.includeDeleted !== "true") {
 		andConditions.push({ isDeleted: false });
 	}
@@ -86,9 +97,9 @@ const getAllVendors = async (query: IQuery) => {
 		take: limit,
 		skip: skip,
 
-		orderBy: {
-			[sortBy]: sortOrder,
-		},
+		// PENDING vendors first (enum order: PENDING, APPROVED, SUSPENDED),
+		// then the requested sort (default: newest first)
+		orderBy: [{ status: "asc" }, { [sortBy]: sortOrder }],
 	});
 
 	const totalVendorCount = await prisma.vendor.count({
@@ -232,6 +243,35 @@ const restoreVendor = async (vendorId: string) => {
 	});
 
 	return restoredVendor;
+};
+
+const changeVendorStatus = async (
+	vendorId: string,
+	payload: IChangeVendorStatusPayload,
+) => {
+	const existingVendor = await prisma.vendor.findUnique({
+		where: { id: vendorId, isDeleted: false },
+	});
+
+	if (!existingVendor) {
+		throw new AppError(httpStatus.NOT_FOUND, "Vendor not found");
+	}
+
+	if (existingVendor.status === payload.status) {
+		throw new AppError(
+			httpStatus.BAD_REQUEST,
+			payload.status === "APPROVED"
+				? "Vendor is already approved"
+				: "Vendor is already suspended",
+		);
+	}
+
+	const updatedVendor = await prisma.vendor.update({
+		where: { id: vendorId },
+		data: { status: payload.status },
+	});
+
+	return updatedVendor;
 };
 
 const addMember = async (
@@ -447,6 +487,7 @@ export const VendorService = {
 	updateVendor,
 	deleteVendor,
 	restoreVendor,
+	changeVendorStatus,
 	addMember,
 	getMembers,
 	removeMember,

@@ -102,7 +102,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 | Restore user action | `PATCH` | `/admin/users/:id/restore` |
 | Vendor management — create | `POST` | `/vendors` |
 | Vendor management — edit | `PATCH` | `/vendors/:id` |
-| Vendor approval / suspend (⚠ not implemented — status not accepted by the endpoint) | `PATCH` | `/vendors/:id` `{ status: "APPROVED" \| "SUSPENDED" }` |
+| Vendor approval / suspend | `PATCH` | `/vendors/:id/status` `{ status: "APPROVED" \| "SUSPENDED" }` |
 | Vendor delete | `DELETE` | `/vendors/:id` |
 | Vendor restore | `PATCH` | `/vendors/:id/restore` |
 | Vendor team — add technician | `POST` | `/vendors/:vendorId/members` `{ technicianId }` |

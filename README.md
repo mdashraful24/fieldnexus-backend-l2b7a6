@@ -40,7 +40,7 @@ In plain words: instead of a company manually juggling hundreds of technicians w
 - Profile management + Cloudinary profile picture upload
 
 **Vendors & Technicians**
-- Vendor management (create, update, soft delete, restore; the approve/suspend status change is not yet wired into the API)
+- Vendor management (create, update, soft delete, restore, approve/suspend via `PATCH /vendors/:id/status`)
 - Vendor teams — add / remove / restore technician members
 - Technician self-application flow (resume upload, email notifications on apply/approve/reject)
 - Vendor performance analytics

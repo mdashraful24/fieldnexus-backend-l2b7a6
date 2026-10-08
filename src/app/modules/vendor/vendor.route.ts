@@ -25,6 +25,13 @@ router.patch(
 	VendorController.updateVendor,
 );
 
+router.patch(
+	"/:id/status",
+	auth(Role.SUPER_ADMIN),
+	validateRequest(vendorValidation.VendorStatusZodSchema),
+	VendorController.changeVendorStatus,
+);
+
 router.delete(
 	"/:id",
 	auth(Role.ADMIN, Role.SUPER_ADMIN),
