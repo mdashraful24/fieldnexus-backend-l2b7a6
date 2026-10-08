@@ -16,6 +16,8 @@ router.post(
 
 router.get("/", VendorController.getAllVendors);
 
+router.get("/public", VendorController.getPublicVendors);
+
 router.get("/:id", VendorController.getVendorById);
 
 router.patch(

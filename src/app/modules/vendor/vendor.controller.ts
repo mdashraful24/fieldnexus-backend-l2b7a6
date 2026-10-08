@@ -31,6 +31,27 @@ const getAllVendors = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
+const getPublicVendors = catchAsync(async (req: Request, res: Response) => {
+	const {
+		status: _status,
+		includeDeleted: _includeDeleted,
+		...query
+	} = req.query;
+
+	const result = await VendorService.getAllVendors({
+		...query,
+		status: "APPROVED",
+	});
+
+	sendResponse(res, {
+		statusCode: httpStatus.OK,
+		success: true,
+		message: "Vendor directory retrieved successfully",
+		data: result.data,
+		meta: result.meta,
+	});
+});
+
 const getVendorById = catchAsync(async (req: Request, res: Response) => {
 	const id = req.params.id as string;
 
@@ -159,6 +180,7 @@ const restoreMember = catchAsync(async (req: Request, res: Response) => {
 export const VendorController = {
 	createVendor,
 	getAllVendors,
+	getPublicVendors,
 	getVendorById,
 	updateVendor,
 	deleteVendor,

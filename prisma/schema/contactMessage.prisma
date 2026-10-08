@@ -1,0 +1,17 @@
+model ContactMessage {
+  id String @id @default(uuid())
+
+  name    String
+  email   String
+  subject String
+  message String
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead], name: "idx_contactMessage_isRead")
+  @@index([createdAt], name: "idx_contactMessage_createdAt")
+  @@map("contact_messages")
+}

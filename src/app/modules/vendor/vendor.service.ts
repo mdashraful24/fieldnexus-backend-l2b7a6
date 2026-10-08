@@ -77,7 +77,9 @@ const getAllVendors = async (query: IQuery) => {
 
 		if (validStatuses.includes(query.status)) {
 			andConditions.push({
-				status: { equals: query.status as "PENDING" | "APPROVED" | "SUSPENDED" },
+				status: {
+					equals: query.status as "PENDING" | "APPROVED" | "SUSPENDED",
+				},
 			});
 		}
 	}

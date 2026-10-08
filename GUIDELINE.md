@@ -317,7 +317,8 @@ Below is a **complete walk-through**. It uses `:id` and `:paymentId` to mean "us
 | F1 | `POST /api/v1/vendors` body `{ name, email, contactNumber?, description?, address?, serviceAreas? }` | Admin | New vendor starts as **PENDING** |
 | F2 | `PATCH /api/v1/vendors/:id` body `{ name?, email?, contactNumber?, description?, address?, serviceAreas? }` | Admin | Edit vendor profile fields (`status` is not accepted here) |
 | F2a | `PATCH /api/v1/vendors/:id/status` body `{ status: "APPROVED" \| "SUSPENDED" }` | Super Admin | Approve or suspend a vendor (new vendors start **PENDING**; Admin gets 403) |
-| F3 | `GET /api/v1/vendors` | Public | List vendors |
+| F3 | `GET /api/v1/vendors` | Public | List all non-deleted vendors with `status`/`includeDeleted` filters (used by admin dashboard) |
+| F3a | `GET /api/v1/vendors/public` | Public | Public vendor directory: only **APPROVED** vendors (server-enforced; `status`/`includeDeleted` query params are ignored) |
 | F4 | `POST /api/v1/vendors/:vendorId/members` body `{ technicianId }` | Admin | Add a technician to a vendor |
 | F5 | `GET /api/v1/vendors/:vendorId/members` | Admin | See a vendor's technicians |
 | F6 | `DELETE /api/v1/vendors/:id` | Admin | Remove a vendor (soft delete) |

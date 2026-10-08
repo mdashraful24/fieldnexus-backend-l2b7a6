@@ -43,7 +43,7 @@ Auth header: `Authorization: Bearer <accessToken>` (or the token is stored in an
 |-----------------------------|---------|------------------|
 | Service catalog / category list | `GET` | `/service-categories` |
 | Service category detail | `GET` | `/service-categories/:id` |
-| Vendors directory list (search/filter) | `GET` | `/vendors?page=&limit=&search=&status=` |
+| Vendors directory list (approved only) | `GET` | `/vendors/public?page=&limit=&search=` (forces `status=APPROVED`; `status`/`includeDeleted` params are ignored) |
 | Vendor detail / team page | `GET` | `/vendors/:id` |
 | Technician application form | `POST` | `/technician-applications/apply` |
 | Application status tracker | `GET` | `/technician-applications/status` |
